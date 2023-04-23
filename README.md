@@ -2,8 +2,7 @@
 
 The CygnusComplexRewarder is a contract that allows users to collect CYG rewards based on their borrow amount.
 
-It is bassed on the total amount of CYG rewards, the total number of epochs and an emissions curve that reduces each epoch's emissions by 5.5% until it reaches its lifetime the total amount of CYG rewards, theset at 4 years).
-
+It is bassed on the total amount of CYG rewards, the total number of epochs and an emissions curve that reduces each epoch's emissions by 5.5% until it reaches its planned death. 
 
 ```javascript
   totalCygAtN = totalRewards - accumulatedRewards * reductionFactor / emissionsCurve(epoch)
