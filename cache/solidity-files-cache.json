@@ -1,0 +1,959 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/sorrowlol/cygnus-token/contracts/CygnusComplexRewarder.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "54c9fab3ee55192217efeb1afe62b2eb",
+      "sourceName": "contracts/CygnusComplexRewarder.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/ICygnusComplexRewarder.sol",
+        "./utils/Context.sol",
+        "./utils/ReentrancyGuard.sol",
+        "./libraries/SafeTransferLib.sol",
+        "./libraries/PRBMathUD60x18.sol",
+        "./interfaces/core/IHangar18.sol",
+        "./interfaces/core/IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "CygnusComplexRewarder"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/ICygnusComplexRewarder.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "d05d00bb55478a392eeb2beed8fa16db",
+      "sourceName": "contracts/interfaces/ICygnusComplexRewarder.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./core/IHangar18.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "ICygnusComplexRewarder"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1682242404279,
+      "contentHash": "8913b6f9416fda7395529ce2ba29beec",
+      "sourceName": "contracts/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "ReentrancyGuard"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/utils/Context.sol": {
+      "lastModificationDate": 1682242404279,
+      "contentHash": "714ffed9ce6aa4792dc5baefb2b5e0e8",
+      "sourceName": "contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/libraries/SafeTransferLib.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "6bd42b79b0dfca675d24c58891d6d92e",
+      "sourceName": "contracts/libraries/SafeTransferLib.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "SafeTransferLib"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/libraries/PRBMathUD60x18.sol": {
+      "lastModificationDate": 1682242404279,
+      "contentHash": "ea06e5964d6db368921b74c21e01999b",
+      "sourceName": "contracts/libraries/PRBMathUD60x18.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./PRBMath.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "PRBMathUD60x18"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/IHangar18.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "c2ff1ab80fa1b2d37d4c6d184e9a73a7",
+      "sourceName": "contracts/interfaces/core/IHangar18.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IDenebOrbiter.sol",
+        "./IAlbireoOrbiter.sol",
+        "./ICygnusNebulaOracle.sol",
+        "./IAggregationRouterV5.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IHangar18"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/IERC20.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "ceb267646b3a75c56726917de1b8ebb4",
+      "sourceName": "contracts/interfaces/core/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/IDenebOrbiter.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "171339ed164c467e79db939c98c38772",
+      "sourceName": "contracts/interfaces/core/IDenebOrbiter.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IDenebOrbiter"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/IAlbireoOrbiter.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "b937090a824e01703bb01a47b383317c",
+      "sourceName": "contracts/interfaces/core/IAlbireoOrbiter.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IAlbireoOrbiter"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/ICygnusNebulaOracle.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "e7cb8dae8ca42ee0d9e43bcd6075cd4e",
+      "sourceName": "contracts/interfaces/core/ICygnusNebulaOracle.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./AggregatorV3Interface.sol",
+        "./IDexPair.sol",
+        "./IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "ICygnusNebulaOracle"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/IAggregationRouterV5.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "c7148afef8d73c13a1ad5ffee3bb5ada",
+      "sourceName": "contracts/interfaces/core/IAggregationRouterV5.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IAggregationExecutor",
+        "IAggregationRouterV5"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/AggregatorV3Interface.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "07cbeb753083f3839d7aea229b5943a4",
+      "sourceName": "contracts/interfaces/core/AggregatorV3Interface.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "AggregatorV3Interface"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/IDexPair.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "528649c810b5605787a142539c2f116d",
+      "sourceName": "contracts/interfaces/core/IDexPair.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IDexPair"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/libraries/PRBMath.sol": {
+      "lastModificationDate": 1682242404279,
+      "contentHash": "dfcfc37ace442ee0a3a95f365f27c81b",
+      "sourceName": "contracts/libraries/PRBMath.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "PRBMath"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/core/IOrbiter.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "438da40d698a6aa0b72ba7f5693360dd",
+      "sourceName": "contracts/interfaces/core/IOrbiter.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IHangar18.sol",
+        "./ICygnusNebulaOracle.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IOrbiter"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/libraries/PRBMathSD59x18.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "b519532ea28c9d486209aaba40545ec1",
+      "sourceName": "contracts/libraries/PRBMathSD59x18.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./PRBMath.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "PRBMathSD59x18"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/CygnusTokenVesting.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "b75995a2260b52107ce36d77addc2dd2",
+      "sourceName": "contracts/CygnusTokenVesting.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IERC20.sol",
+        "./libraries/SafeTransferLib.sol",
+        "./utils/ReentrancyGuard.sol",
+        "./utils/Owned.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "TokenVesting"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/IERC20.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "9927ef5c64a6ff3e807db6447fed92d1",
+      "sourceName": "contracts/interfaces/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/utils/Owned.sol": {
+      "lastModificationDate": 1682242404279,
+      "contentHash": "11fec455b72d2743b77d783d6017e1e9",
+      "sourceName": "contracts/utils/Owned.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.0"
+      ],
+      "artifacts": [
+        "Owned"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/IERC20Permit.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "088408b73879ce97dcdbb73f823747f8",
+      "sourceName": "contracts/interfaces/IERC20Permit.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "IERC20Permit"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/ERC20Permit.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "6414e6889a1e75a5b1e6c32196de03ca",
+      "sourceName": "contracts/ERC20Permit.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ERC20.sol",
+        "./interfaces/IERC20Permit.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "ERC20Permit"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/ERC20.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "0b10fbdaf50720bdf4e5603006efa0ae",
+      "sourceName": "contracts/ERC20.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/CygnusToken.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "bb7cf9b56c137a39174543e145f52965",
+      "sourceName": "contracts/CygnusToken.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ERC20.sol",
+        "./ERC20Permit.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "CygnusERC20"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/interfaces/ICygnusBorrowTracker.sol": {
+      "lastModificationDate": 1682242404275,
+      "contentHash": "30d005573b2a8e6a66f48f7a3efe90fd",
+      "sourceName": "contracts/interfaces/ICygnusBorrowTracker.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "ICygnusBorrowTracker"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/libraries/Address.sol": {
+      "lastModificationDate": 1682242404279,
+      "contentHash": "3f39aaeb102b4b02efe65ef8f3046dc1",
+      "sourceName": "contracts/libraries/Address.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 400
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.4"
+      ],
+      "artifacts": [
+        "Address"
+      ]
+    }
+  }
+}
