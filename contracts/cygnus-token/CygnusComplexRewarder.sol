@@ -23,7 +23,8 @@ import {IERC20} from "./interfaces/core/IERC20.sol";
  *            - reduction factor. 
  *         
  *          cygPerBlockAtEpochN = (totalRewards - accumulatedRewards) * reductionFactor / emissionsCurve(epochN)
- *          The emissions curve calculates the For example total rewards of 3,000,000 will be:
+ *
+ *          For example total rewards of 3,000,000 will be:
  *
  *                   1.6M |_______.
  *                        |       |
