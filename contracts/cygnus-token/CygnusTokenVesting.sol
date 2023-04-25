@@ -8,6 +8,9 @@ import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
 import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
 import {Owned} from "./utils/Owned.sol";
 
+// Not ours, this is from https://github.com/abdelhamidbakhta/token-vesting-contracts/blob/main/src/TokenVesting.sol
+// Not currently in use
+
 /**
  * @title TokenVesting
  */
