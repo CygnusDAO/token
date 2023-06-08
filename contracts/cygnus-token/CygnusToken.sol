@@ -3,17 +3,28 @@ pragma solidity >=0.8.4;
 
 // Dependencies
 import {ERC20} from "./ERC20.sol";
-import {ERC20Permit} from "./ERC20Permit.sol";
 
 /// @title CygnsuERC20 The CYG token
-/// @notice Admin gets total supply and distributes it to team + farm rewards
-contract CygnusERC20 is ERC20Permit {
-    // Constructs the CYG token
-    constructor(string memory name_, string memory symbol_, uint8 decimals_) ERC20Permit(name_, symbol_, decimals_) {
-        // Give sender total supply of CYG on this chain
-        _balances[msg.sender] = totalSupply;
+contract CygnusERC20 is ERC20 {
+    // Override name
+    function name() public pure override(ERC20) returns (string memory) {
+        return "CygnusDAO";
+    }
 
-        /// @custom:event Transfer
-        emit Transfer(address(0), msg.sender, totalSupply);
+    // Override symbol
+    function symbol() public pure override(ERC20) returns (string memory) {
+        return "CYG";
+    }
+
+    constructor() {
+        // Logic to fund the ComplexRewarder goes here
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override(ERC20) {
+        // Override to cap supply
     }
 }
