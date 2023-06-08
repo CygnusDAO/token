@@ -18,7 +18,7 @@ import {IERC20} from "./interfaces/core/IERC20.sol";
  */
 /**
  *  @notice This contract receives all minted reserves from Core contracts. From the borrowable, this contract
- *          receives the reserve rate from borrows in the form of CygUSD. From the collateral, it receives CygLP 
+ *          receives the reserve rate from borrows in the form of CygUSD. From the collateral, it receives CygLP
  *          from each liquidationn IF the liquidationFee is greater than 0 (default is 0).
  *  @title  CygnusDAOReserves
  *  @author CygnusDAO
@@ -34,7 +34,7 @@ import {IERC20} from "./interfaces/core/IERC20.sol";
  *            +------------+                         +----------------------+            +--------------------+
  *               ▲      |                                                                      ▲         |
  *               |      |    2. track borrow/lend    +----------------------+                  |         |
- *               |      +--------------------------► |     CYG REWARDER     |                  |         |  6. claim rewards  
+ *               |      +--------------------------► |     CYG REWARDER     |                  |         |  6. claim rewards
  *               |                                   +----------------------+                  |         |
  *               |                                              |                              |         |
  *               |                                              |   4. claim CYG               |         |
@@ -49,17 +49,17 @@ import {IERC20} from "./interfaces/core/IERC20.sol";
  *                                                              |                                        |
  *                                                              +----------------------------------------+
  *                                                                        usdc/lp rewards
- *  
- *       Important: Main functionality of this contract is to split the reserves received to two main addresses: 
+ *
+ *       Important: Main functionality of this contract is to split the reserves received to two main addresses:
  *                  `daoReserves` and `cygnusX1Vault`
- *  
- *                  This contract receives only CygUSD and CygLP (vault tokens of the Core contracts). The amount 
+ *
+ *                  This contract receives only CygUSD and CygLP (vault tokens of the Core contracts). The amount
  *                  of assets received by the X1 Vault depends on the `x1VaultWeight` variable. Basically redeems
- *                  an amount of shares (instead of all) for USDC and sends it to the vault. The Bank on the other 
- *                  hand receives only shares instead of the assets (1 - vaultWeight) and are not to be redeemed, 
- *                  sitting in the bank accruing interest (CygUSD) or earning trading fees (CygLP) from the 
- *                  liquidity pools. 
- *                    
+ *                  an amount of shares (instead of all) for USDC and sends it to the vault. The Bank on the other
+ *                  hand receives only shares instead of the assets (1 - vaultWeight) and are not to be redeemed,
+ *                  sitting in the bank accruing interest (CygUSD) or earning trading fees (CygLP) from the
+ *                  liquidity pools.
+ *
  */
 contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 

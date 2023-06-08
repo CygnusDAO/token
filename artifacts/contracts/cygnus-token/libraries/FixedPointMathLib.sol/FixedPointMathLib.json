@@ -1,0 +1,56 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "FixedPointMathLib",
+  "sourceName": "contracts/cygnus-token/libraries/FixedPointMathLib.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "DivFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "DivWadFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ExpOverflow",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FactorialOverflow",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "FullMulDivFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "LnWadUndefined",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Log2Undefined",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MulDivFailed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MulWadFailed",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x6080806040523460175760119081601d823930815050f35b600080fdfe600080fdfea164736f6c6343000811000a",
+  "deployedBytecode": "0x600080fdfea164736f6c6343000811000a",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

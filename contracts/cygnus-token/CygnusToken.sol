@@ -20,11 +20,7 @@ contract CygnusERC20 is ERC20 {
         // Logic to fund the ComplexRewarder goes here
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal override(ERC20) {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20) {
         // Override to cap supply
     }
 }

@@ -23,12 +23,12 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "calculatedCollateral",
+          "name": "create2Collateral",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "deployedCollateral",
+          "name": "collateral",
           "type": "address"
         }
       ],
@@ -318,6 +318,12 @@
         },
         {
           "indexed": false,
+          "internalType": "contract ICygnusNebulaOracle",
+          "name": "nebulaOracle",
+          "type": "address"
+        },
+        {
+          "indexed": false,
           "internalType": "bytes32",
           "name": "uniqueHash",
           "type": "bytes32"
@@ -387,6 +393,31 @@
         }
       ],
       "name": "NewDaoReserves",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "status",
+          "type": "bool"
+        }
+      ],
+      "name": "NewMasterBorrowApproval",
       "type": "event"
     },
     {
@@ -665,6 +696,19 @@
     },
     {
       "inputs": [],
+      "name": "cygnusX1Vault",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "daoReserves",
       "outputs": [
         {
@@ -837,6 +881,30 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "masterBorrowApproval",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "nativeToken",
       "outputs": [
@@ -902,6 +970,32 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newX1Vault",
+          "type": "address"
+        }
+      ],
+      "name": "setCygnusX1Vault",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "setMasterBorrowApproval",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "setNewCygnusAdmin",
       "outputs": [],
@@ -911,19 +1005,6 @@
     {
       "inputs": [],
       "name": "setNewDaoReserves",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newX1Vault",
-          "type": "address"
-        }
-      ],
-      "name": "setNewX1Vault",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -983,19 +1064,6 @@
     {
       "inputs": [],
       "name": "usd",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "x1Vault",
       "outputs": [
         {
           "internalType": "address",
