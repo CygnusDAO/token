@@ -26,7 +26,7 @@ import {IERC20} from "./interfaces/core/IERC20.sol";
  *                   1.6M |_______.
  *                        |       |
  *                   1.4M |       |
- *                        |       |                              Example with 3M totalRewards
+ *                        |       |                    Example with 3M totalRewards and 5.5% reduction factor
  *                   1.2M |       |
  *                        |       |                                Epochs    |    Rewards
  *                     1M |       |                             -------------|---------------
