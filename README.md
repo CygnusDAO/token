@@ -5,7 +5,7 @@ The CygnusComplexRewarder is a contract that allows users to collect CYG rewards
 It is bassed on the total amount of CYG rewards, the total number of epochs and an emissions curve that reduces each epoch's emissions by 5.5% until it reaches its planned death. 
 
 ```javascript
-  totalCygAtN = totalRewards - accumulatedRewards * reductionFactor / emissionsCurve(epoch)
+  totalCygAtN = ((totalRewards - accumulatedRewards) * reductionFactor) / emissionsCurve(epoch)
 ```
 
 where totalRewards is the total amount of rewards that will be distributed over all epochs, accumulatedRewards is the total amount of rewards that have been distributed in previous epochs, reductionFactor is the percentage by which the rewards are reduced every epoch, and emissionsCurve(epoch) is the value returned by this function for the given epoch.
