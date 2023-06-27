@@ -99,4 +99,23 @@ With total token emissions of 3,000,000 the per epoch emissions as computed by t
 
 # Collecting CYG Rewards
 
-All CYG rewards come from the borrowable contracts.
+All CYG rewards come from the borrowable contracts and each borrowable has a lender pool and borrower pool.
+
+```solidity
+  
+    /**
+     *  @custom:enum Position Lending or Borrowing shuttle
+     *  @custom:member LENDER Pass 0 to claim from lender pools
+     *  @custom:memebr BROROWER Pass 1 to claim from borrower pools
+     */
+    enum Position {
+        LENDER,
+        BORROWER
+    }
+
+    function collect(address borrowable, Position position, address to) external;
+```
+
+```javascript
+    await rewarder.connect(borrower).collect(borrowable.address, 1, borrower.address);
+```
