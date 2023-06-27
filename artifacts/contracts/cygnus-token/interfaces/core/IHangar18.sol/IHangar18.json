@@ -20,18 +20,7 @@
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "create2Collateral",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "collateral",
-          "type": "address"
-        }
-      ],
+      "inputs": [],
       "name": "Hangar18__CollateralAddressMismatch",
       "type": "error"
     },
@@ -94,129 +83,17 @@
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "lpTokenPair",
-          "type": "address"
-        }
-      ],
-      "name": "Hangar18__LPTokenPairNotSupported",
+      "inputs": [],
+      "name": "Hangar18__LiquidityTokenNotSupported",
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "bool",
-              "name": "status",
-              "type": "bool"
-            },
-            {
-              "internalType": "uint88",
-              "name": "orbiterId",
-              "type": "uint88"
-            },
-            {
-              "internalType": "contract IAlbireoOrbiter",
-              "name": "albireoOrbiter",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IDenebOrbiter",
-              "name": "denebOrbiter",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "borrowableInitCodeHash",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "collateralInitCodeHash",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "contract ICygnusNebulaOracle",
-              "name": "nebulaOracle",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "uniqueHash",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "string",
-              "name": "orbiterName",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct IHangar18.Orbiter",
-          "name": "orbiter",
-          "type": "tuple"
-        }
-      ],
+      "inputs": [],
       "name": "Hangar18__OrbiterAlreadySet",
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "bool",
-              "name": "status",
-              "type": "bool"
-            },
-            {
-              "internalType": "uint88",
-              "name": "orbiterId",
-              "type": "uint88"
-            },
-            {
-              "internalType": "contract IAlbireoOrbiter",
-              "name": "albireoOrbiter",
-              "type": "address"
-            },
-            {
-              "internalType": "contract IDenebOrbiter",
-              "name": "denebOrbiter",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "borrowableInitCodeHash",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "collateralInitCodeHash",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "contract ICygnusNebulaOracle",
-              "name": "nebulaOracle",
-              "type": "address"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "uniqueHash",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "string",
-              "name": "orbiterName",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct IHangar18.Orbiter",
-          "name": "orbiter",
-          "type": "tuple"
-        }
-      ],
+      "inputs": [],
       "name": "Hangar18__OrbitersAreInactive",
       "type": "error"
     },
@@ -269,18 +146,7 @@
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "lpTokenPair",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "orbiterId",
-          "type": "uint256"
-        }
-      ],
+      "inputs": [],
       "name": "Hangar18__ShuttleAlreadyDeployed",
       "type": "error"
     },
@@ -318,12 +184,6 @@
         },
         {
           "indexed": false,
-          "internalType": "contract ICygnusNebulaOracle",
-          "name": "nebulaOracle",
-          "type": "address"
-        },
-        {
-          "indexed": false,
           "internalType": "bytes32",
           "name": "uniqueHash",
           "type": "bytes32"
@@ -355,25 +215,6 @@
         }
       ],
       "name": "NewCygnusAdmin",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "contract ICygnusNebulaOracle",
-          "name": "oldCygnusNebula",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "contract ICygnusNebulaOracle",
-          "name": "newCygnusNebula",
-          "type": "address"
-        }
-      ],
-      "name": "NewCygnusNebulaOracle",
       "type": "event"
     },
     {
@@ -553,42 +394,10 @@
     },
     {
       "inputs": [],
-      "name": "AGGREGATION_ROUTER_V5",
-      "outputs": [
-        {
-          "internalType": "contract IAggregationRouterV5",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "admin",
       "outputs": [
         {
           "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "oracleId",
-          "type": "uint256"
-        }
-      ],
-      "name": "allNebulas",
-      "outputs": [
-        {
-          "internalType": "contract ICygnusNebulaOracle",
           "name": "",
           "type": "address"
         }
@@ -635,11 +444,6 @@
           "internalType": "bytes32",
           "name": "collateralInitCodeHash",
           "type": "bytes32"
-        },
-        {
-          "internalType": "contract ICygnusNebulaOracle",
-          "name": "nebulaOracle",
-          "type": "address"
         },
         {
           "internalType": "bytes32",
@@ -790,11 +594,6 @@
           "type": "bytes32"
         },
         {
-          "internalType": "contract ICygnusNebulaOracle",
-          "name": "nebulaOracle",
-          "type": "address"
-        },
-        {
           "internalType": "bytes32",
           "name": "uniqueHash",
           "type": "bytes32"
@@ -868,39 +667,10 @@
           "internalType": "contract IDenebOrbiter",
           "name": "denebOrbiter",
           "type": "address"
-        },
-        {
-          "internalType": "contract ICygnusNebulaOracle",
-          "name": "nebulaOracle",
-          "type": "address"
         }
       ],
       "name": "initializeOrbiter",
       "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        }
-      ],
-      "name": "masterBorrowApproval",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -912,19 +682,6 @@
           "internalType": "address",
           "name": "",
           "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "nebulasDeployed",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -978,19 +735,6 @@
         }
       ],
       "name": "setCygnusX1Vault",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "spender",
-          "type": "address"
-        }
-      ],
-      "name": "setMasterBorrowApproval",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

@@ -1,4 +1,21 @@
-// SPDX-License-Identifier: Unlicense
+//  SPDX-License-Identifier: AGPL-3.0-or-later
+//
+//  ICygnusTerminal.sol
+//
+//  Copyright (C) 2023 CygnusDAO
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Affero General Public License for more details.
+//
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity >=0.8.17;
 
 // Dependencies
@@ -7,11 +24,11 @@ import {IERC20Permit} from "./IERC20Permit.sol";
 // Interfaces
 import {IHangar18} from "./IHangar18.sol";
 import {IAllowanceTransfer} from "./IAllowanceTransfer.sol";
-import {ICygnusNebulaOracle} from "./ICygnusNebulaOracle.sol";
+import {ICygnusNebula} from "./ICygnusNebula.sol";
 
 /**
- *  @title The interface for CygnusTerminal which handles pool tokens shared by Collateral and Borrow contracts
- *  @notice The interface for the CygnusTerminal contract allows minting/redeeming Cygnus pool tokens
+ *  @title ICygnusTerminal
+ *  @notice The interface to mint/redeem pool tokens (CygLP and CygUSD)
  */
 interface ICygnusTerminal is IERC20Permit {
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
@@ -115,7 +132,7 @@ interface ICygnusTerminal is IERC20Permit {
     /**
      *  @return cygnusNebulaOracle The address of the oracle for this lending pool
      */
-    function cygnusNebulaOracle() external view returns (ICygnusNebulaOracle);
+    function cygnusNebulaOracle() external view returns (ICygnusNebula);
 
     /**
      *  @return shuttleId The ID of this shuttle (shared by Collateral and Borrow)
@@ -130,7 +147,7 @@ interface ICygnusTerminal is IERC20Permit {
     /**
      *  @return exchangeRate The ratio which 1 pool token can be redeemed for underlying amount.
      */
-    function exchangeRate() external returns (uint256);
+    function exchangeRate() external view returns (uint256);
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             4. NON-CONSTANT FUNCTIONS
@@ -153,8 +170,6 @@ interface ICygnusTerminal is IERC20Permit {
      *  @param _permit Data signed over by the owner specifying the terms of approval
      *  @param _signature The owner's signature over the permit data
      *  @return shares Amount of Cygnus Vault shares minted and transferred to the `recipient`.
-     *
-     *  @custom:security non-reentrant
      */
     function deposit(
         uint256 assets,
@@ -175,18 +190,6 @@ interface ICygnusTerminal is IERC20Permit {
      *  @param owner The address that owns the shares.
      *
      *  @return assets The amount of underlying assets received by the `recipient`.
-     *
-     *  @custom:security non-reentrant
      */
     function redeem(uint256 shares, address recipient, address owner) external returns (uint256 assets);
-
-    /**
-     *  @notice Admin 👽
-     *  @notice Recovers any ERC20 token accidentally sent to this contract, sent to msg.sender
-     *
-     *  @param token The address of the token we are recovering
-     *
-     *  @custom:security non-reentrant only-admin
-     */
-    function sweepToken(address token) external;
 }

@@ -299,12 +299,12 @@
     },
     {
       "inputs": [],
-      "name": "daoPositionsWeight",
+      "name": "daoReserves",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "address",
           "name": "",
-          "type": "uint256"
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -312,12 +312,12 @@
     },
     {
       "inputs": [],
-      "name": "daoReserves",
+      "name": "daoWeight",
       "outputs": [
         {
-          "internalType": "address",
+          "internalType": "uint256",
           "name": "",
-          "type": "address"
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",

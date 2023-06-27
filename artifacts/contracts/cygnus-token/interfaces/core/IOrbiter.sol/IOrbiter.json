@@ -19,11 +19,11 @@
         },
         {
           "internalType": "address",
-          "name": "twinStar",
+          "name": "twinstar",
           "type": "address"
         },
         {
-          "internalType": "contract ICygnusNebulaOracle",
+          "internalType": "contract ICygnusNebula",
           "name": "oracle",
           "type": "address"
         },

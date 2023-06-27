@@ -130,7 +130,7 @@ interface ICygnusDAOReserves {
 
     /// @dev Retrieves the weight of the DAO positions
     /// @return The weight of the DAO positions.
-    function daoPositionsWeight() external view returns (uint256);
+    function daoWeight() external view returns (uint256);
 
     /// @dev Retrieves the length of the allShuttles array.
     /// @return The length of the allShuttles array.

@@ -14,52 +14,57 @@ import {IHangar18} from "./interfaces/core/IHangar18.sol";
 import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
 import {IERC20} from "./interfaces/core/IERC20.sol";
 
-/***
- */
 /**
- *  @notice This contract receives all minted reserves from Core contracts. From the borrowable, this contract
- *          receives the reserve rate from borrows in the form of CygUSD. From the collateral, it receives CygLP
- *          from each liquidationn IF the liquidationFee is greater than 0 (default is 0).
+ *  @notice This contract receives all reserves and fees (if applicable) from Core contracts. 
+ *          
+ *          From the borrowable, this contract receives the reserve rate from borrows in the form of CygUSD. Note 
+ *          that the reserves are actually kept in CygUSD instead of USD as opposed to most lending protocols. The 
+ *          reserve rate is manually updatable at core contracts by admin, it is by default set to 10% with the 
+ *          option to set between 0% to 20%.
+ *
+ *          From the collateral, this contract receives liquidation fees in the form of CygLP. The liquidation fee
+ *          is also an updatable parameter by admins, and can be set anywhere between 0% and 10%. It is by default 
+ *          set to 1%. This means that when CygLP is seized from the borrower, an extra 1% of CygLP is taken also.
+ *
  *  @title  CygnusDAOReserves
  *  @author CygnusDAO
  *
- *                            3.a. send usdc/lp rewards
+ *                                              3.A. Harvest LP rewards
  *                   +-------------------------------------------------------------------------------+
  *                   |                                                                               |
  *                   |                                                                               ▼
  *            +------------+                         +----------------------+            +--------------------+
- *            |            |  3.b. mint USD reserves |                      |            |                    |
+ *            |            |  3.B. Mint USD reserves |                      |            |                    |
  *            |    CORE    |>----------------------► |     DAO RESERVES     |>---------► |      X1 VAULT      |
  *            |            |                         |                      |            |                    |
  *            +------------+                         +----------------------+            +--------------------+
  *               ▲      |                                                                      ▲         |
- *               |      |    2. track borrow/lend    +----------------------+                  |         |
- *               |      +--------------------------► |     CYG REWARDER     |                  |         |  6. claim rewards
+ *               |      |    2. Track borrow/lend    +----------------------+                  |         |
+ *               |      +--------------------------► |     CYG REWARDER     |                  |         |  6. Claim LP rewards + USDC
  *               |                                   +----------------------+                  |         |
- *               |                                              |                              |         |
- *               |                                              |   4. claim CYG               |         |
- *               |                                              |                              |         |
- *               |                                              ▼                              |         |
+ *               |                                            ▲    |                           |         |
+ *               |                                            |    | 4. Claim CYG              |         |
+ *               |                                            |    |                           |         |
+ *               |                                            |    ▼                           |         |
  *               |                                   +------------------------+                |         |
- *               |      1. deposit usdc/lp token     |                        |  5. stake CYG  |         |
+ *               |    1. Deposit USDC / Liquidity    |                        |  5. Stake CYG  |         |
  *               +-----------------------------------|    LENDERS/BORROWERS   |>---------------+         |
  *                                                   |         ʕ•ᴥ•ʔ          |                          |
  *                                                   +------------------------+                          |
  *                                                              ▲                                        |
  *                                                              |                                        |
  *                                                              +----------------------------------------+
- *                                                                        usdc/lp rewards
+ *                                                                        LP Rewards + USDC
  *
  *       Important: Main functionality of this contract is to split the reserves received to two main addresses:
  *                  `daoReserves` and `cygnusX1Vault`
  *
- *                  This contract receives only CygUSD and CygLP (vault tokens of the Core contracts). The amount
- *                  of assets received by the X1 Vault depends on the `x1VaultWeight` variable. Basically redeems
- *                  an amount of shares (instead of all) for USDC and sends it to the vault. The Bank on the other
- *                  hand receives only shares instead of the assets (1 - vaultWeight) and are not to be redeemed,
- *                  sitting in the bank accruing interest (CygUSD) or earning trading fees (CygLP) from the
- *                  liquidity pools.
- *
+ *                  This contract receives only CygUSD and CygLP (vault tokens of the Core contracts). The amount of 
+ *                  assets received by the X1 Vault depends on the `x1VaultWeight` variable. Basically this contract 
+ *                  redeems an amount of CygUSD shares for USDC and sends it to the vault so users can claim USD from 
+ *                  reserves. The DAO receives the leftover shares which are NOT to be redeemed. These shares sit in 
+ *                  the DAO reserves accruing interest (in the case of CygUSD) or earning from trading fees (in the 
+ *                  case of CygLP).
  */
 contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
@@ -83,7 +88,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     Shuttle[] public override allShuttles;
 
     /// @inheritdoc ICygnusDAOReserves
-    uint256 public daoPositionsWeight;
+    uint256 public daoWeight;
 
     /// @inheritdoc ICygnusDAOReserves
     uint256 public override x1VaultWeight;
@@ -125,7 +130,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         x1VaultWeight = _weight;
 
         // Set the weight of the shares that this contract receives that are sent to the dao positions address
-        daoPositionsWeight = 1e18 - x1VaultWeight;
+        daoWeight = 1e18 - x1VaultWeight;
     }
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
@@ -134,7 +139,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     /// @custom:modifier cygnusAdmin Controls important parameters in both Collateral and Borrow contracts 👽
     modifier cygnusAdmin() {
-        checkAdmin();
+        _checkAdmin();
         _;
     }
 
@@ -144,10 +149,8 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     /*  ────────────────────────────────────────────── Private ────────────────────────────────────────────────  */
 
-    /**
-     *  @notice Internal check for msg.sender admin, checks factory's current admin 👽
-     */
-    function checkAdmin() private view {
+    /// @notice Internal check for msg.sender admin, checks factory's current admin 👽
+    function _checkAdmin() private view {
         // Current admin from the factory
         address admin = hangar18.admin();
 
@@ -157,12 +160,10 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         }
     }
 
-    /**
-     *  @notice Checks the `token` balance of this contract
-     *  @param token The token to view balance of
-     *  @return amount This contract's `token` balance
-     */
-    function contractBalanceOf(address token) private view returns (uint256) {
+    /// @notice Checks the `token` balance of this contract
+    /// @param token The token to view balance of
+    /// @return amount This contract's `token` balance
+    function _checkBalance(address token) private view returns (uint256) {
         // Our balance of `token` (uses solady lib)
         return token.balanceOf(address(this));
     }
@@ -186,7 +187,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     /// @return assets The amount of assets received
     function _redeemAndFundUSD(address vaultToken) private returns (uint256 shares, uint256 assets) {
         // Get balance of vault shares we own
-        uint256 totalShares = contractBalanceOf(vaultToken);
+        uint256 totalShares = _checkBalance(vaultToken);
 
         // Only redeem vault shares
         uint256 x1Shares = totalShares.mulWad(x1VaultWeight);
@@ -195,13 +196,10 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         shares = totalShares - x1Shares;
 
         // Assets for the X1 Vault
-        assets = ICygnusTerminal(vaultToken).redeem(x1Shares, address(this), address(this));
+        if (x1Shares > 0) assets = ICygnusTerminal(vaultToken).redeem(x1Shares, cygnusX1Vault, address(this));
 
         // Transfer shares USD Reserves
         if (shares > 0) vaultToken.safeTransfer(daoReserves, shares);
-
-        // Transfer assets X1 Vault
-        if (assets > 0) usd.safeTransfer(cygnusX1Vault, assets);
 
         /// @custom:event FundX1Vault
         emit FundX1Vault(vaultToken, daoReserves, cygnusX1Vault, shares, assets);
@@ -209,8 +207,11 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
 
+    // USDC: Have 100 CygUSD. We redeem 50 CygUSD for USDC and send the USDC to the X1 Vault.
+    //       The 50 leftover CygUSD we send to the DAO to not be redeemed, kept as reserves.
+
     /// @inheritdoc ICygnusDAOReserves
-    /// @custom:security non-reentrant only-admin
+    /// @custom:security non-reentrant
     function fundX1VaultUSD(uint256 shuttleId) external override nonReentrant returns (uint256 shares, uint256 assets) {
         // Address of borrowable at index `i`
         address borrowable = getShuttle[shuttleId].borrowable;
@@ -220,7 +221,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     }
 
     /// @inheritdoc ICygnusDAOReserves
-    /// @custom:security non-reentrant only-admin
+    /// @custom:security non-reentrant
     function fundX1VaultUSDAll() external override nonReentrant returns (uint256 shares, uint256 assets) {
         // Get shuttles length
         uint256 shuttlesLength = allShuttles.length;
@@ -252,14 +253,17 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         emit FundX1VaultAll(shuttlesLength, cygnusX1Vault, shares, assets);
     }
 
+    // LP Tokens: Function only used if `liquidationFee` is active, meaning we receive from each Liquidation.
+    //            Send 100% of the LP received to the DAO.
+
     /// @inheritdoc ICygnusDAOReserves
-    /// @custom:security non-reentrant only-admin
+    /// @custom:security non-reentrant
     function fundDAOPositionsCygLP(uint256 shuttleId) external override nonReentrant returns (uint256 shares) {
         // Address of borrowable at index `i`
         address collateral = getShuttle[shuttleId].collateral;
 
         // Get balance of vault shares we own
-        shares = contractBalanceOf(collateral);
+        shares = _checkBalance(collateral);
 
         // Transfer shares USD Reserves
         if (shares > 0) collateral.safeTransfer(daoReserves, shares);
@@ -269,7 +273,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     }
 
     /// @inheritdoc ICygnusDAOReserves
-    /// @custom:security non-reentrant only-admin
+    /// @custom:security non-reentrant
     function fundDAOPositionsCygLPAll() external override nonReentrant returns (uint256 shares) {
         // Get shuttles length
         uint256 shuttlesLength = allShuttles.length;
@@ -283,7 +287,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
             address collateral = _shuttles[i].collateral;
 
             // Get balance of vault shares we own
-            uint256 _shares = contractBalanceOf(collateral);
+            uint256 _shares = _checkBalance(collateral);
 
             // Transfer shares USD Reserves
             if (_shares > 0) collateral.safeTransfer(daoReserves, _shares);
@@ -302,6 +306,8 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         emit FundDAOReservesAll(shuttlesLength, daoReserves, shares);
     }
 
+    // Admin only
+
     /// @inheritdoc ICygnusDAOReserves
     /// @custom:security non-reentrant only-admin
     function setX1VaultWeight(uint256 weight) external override cygnusAdmin {
@@ -315,7 +321,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         x1VaultWeight = weight;
 
         // Adjust DAO Positions
-        daoPositionsWeight = 1e18 - weight;
+        daoWeight = 1e18 - weight;
 
         /// @custom:event NewX1VaultWeight
         emit NewX1VaultWeight(oldWeight, x1VaultWeight);
@@ -344,17 +350,5 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
         /// @custom:event NewShuttleAdded
         emit NewShuttleAdded(shuttle);
-    }
-
-    /// @custom:security non-reentrant only-admin
-    function sweepToken(address token, bool toDAO) external cygnusAdmin {
-        // Balance this contract has of the erc20 token we are recovering
-        uint256 balance = contractBalanceOf(token);
-
-        // Receive to sender or send to DAO Positions
-        address receiver = toDAO ? daoReserves : msg.sender;
-
-        // Transfer token
-        token.safeTransfer(receiver, balance);
     }
 }

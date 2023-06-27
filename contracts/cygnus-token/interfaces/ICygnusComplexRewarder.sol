@@ -81,6 +81,13 @@ interface ICygnusComplexRewarder {
      */
     error CygnusComplexRewarder__CantSweepUnderlying(address token, address underlying);
 
+    /**
+     *  @dev Reverts when the total weight is above 100% when setting lender/borrower splits
+     *
+     *  @custom:error InvalidTotalWeight
+     */
+    error CygnusComplexRewarder__InvalidTotalWeight();
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             2. CUSTOM EVENTS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -116,12 +123,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:event UpdateShuttle
      */
-    event UpdateShuttle(
-        address indexed borrowable,
-        uint256 lastRewardTime,
-        uint256 totalShares,
-        uint256 accRewardPerShare
-    );
+    event UpdateShuttle(address indexed borrowable, uint256 lastRewardTime, uint256 totalShares, uint256 accRewardPerShare);
 
     /**
      *  @notice Legs when `sender` harvests and receives CYG
@@ -136,16 +138,17 @@ interface ICygnusComplexRewarder {
     event CollectReward(address indexed borrowable, uint256 indexed epoch, address sender, uint256 reward);
 
     /**
-     *  @dev Logs when a borrower's borrow balance and borrow index are tracked.
+     *  @dev Logs when the complex rewarder tracks a lender or a borrower
      *
      *  @param borrowable The address of the borrowable asset.
-     *  @param borrower The address of the borrower.
-     *  @param borrowBalance The updated borrow balance of the borrower.
-     *  @param borrowIndex The updated borrow index of the borrowable asset.
+     *  @param account The address of the lender or borrower
+     *  @param balance The updated balance of the account
+     *  @param adjustmentFactor The updated borrow index of the borrowable asset or 1e18 for lenders
+     *  @param position Whether the account has a borrow or lend position
      *
      *  @custom:event TrackShuttle
      */
-    event TrackShuttle(address indexed borrowable, address indexed borrower, uint256 borrowBalance, uint256 borrowIndex);
+    event TrackRewards(address indexed borrowable, address indexed account, uint256 balance, uint256 adjustmentFactor, Position position);
 
     /**
      *  @dev Emitted when the contract self-destructs (can only self-destruct after the death unix timestamp)
@@ -193,12 +196,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:event NewShuttleAllocPoint
      */
-    event NewShuttleAllocPoint(
-        uint256 indexed shuttleId,
-        address borrowable,
-        uint256 oldAllocPoint,
-        uint256 newAllocPoint
-    );
+    event NewShuttleAllocPoint(uint256 indexed shuttleId, address borrowable, uint256 oldAllocPoint, uint256 newAllocPoint);
 
     /**
      *  @dev Logs when the allocation point of a borrowable asset in a Shuttle pool is updated.
@@ -209,12 +207,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:event RemoveShuttleReward
      */
-    event RemoveShuttleReward(
-        uint256 indexed shuttleId,
-        address borrowable,
-        uint256 oldAllocPoint,
-        uint256 currentEpoch
-    );
+    event RemoveShuttleReward(uint256 indexed shuttleId, address borrowable, uint256 oldAllocPoint, uint256 currentEpoch);
 
     /**
      *  @dev Logs when all pools get updated
@@ -232,27 +225,41 @@ interface ICygnusComplexRewarder {
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
 
     /**
+     *  @custom:enum Position Lending or Borrowing shuttle
+     *  @custom:member LENDER If we are tracking the user's CygUSD
+     *  @custom:memebr BROROWER If we are tracking the user's borrow balance
+     */
+    enum Position {
+        LENDER,
+        BORROWER
+    }
+
+    /**
      *  @notice Mapping to keep track of PoolInfo for each borrowable asset
      *  @param borrowable The address of the Cygnus Borrow contract
+     *  @param position 0 for borrower, 1 for lender
      *  @return active Whether the pool has been initialized or not (can only be set once)
      *  @return shuttleId The ID for this shuttle to identify in hangar18
      *  @return totalShares The total number of shares held in the pool
      *  @return accRewardPerShare The accumulated reward per share of the pool
      *  @return lastRewardTime The timestamp of the last reward distribution
      *  @return allocPoint The allocation points of the pool
+     *  @return bonusRewarder The rewarder contract to receive bonus token rewards apart from CYG
      */
     function getShuttleInfo(
-        address borrowable
-    ) external view returns (bool, uint256, uint256, uint256, uint256, uint256);
+        address borrowable,
+        Position position
+    ) external view returns (bool, uint256, uint256, uint256, uint256, uint256, address);
 
     /**
      *  @notice Mapping to keep track of UserInfo for each user's deposit and borrow activity
      *  @param borrowable The address of the borrowable contract.
+     *  @param position The borrower or lender pool (0 for borrowers, 1 for lenders)
      *  @param user The address of the user to check rewards for.
      *  @return shares The number of shares held by the user
      *  @return rewardDebt The amount of reward debt the user has accrued
      */
-    function getUserInfo(address borrowable, address user) external view returns (uint256, int256);
+    function getUserInfo(address borrowable, Position position, address user) external view returns (uint256, int256);
 
     /**
      *  @notice Mapping to keep track of EpochInfo for each epoch
@@ -266,17 +273,7 @@ interface ICygnusComplexRewarder {
      */
     function getEpochInfo(
         uint256 id
-    )
-        external
-        view
-        returns (
-            uint256 epoch,
-            uint256 rewardRate,
-            uint256 totalRewards,
-            uint256 totalClaimed,
-            uint256 start,
-            uint256 end
-        );
+    ) external view returns (uint256 epoch, uint256 rewardRate, uint256 totalRewards, uint256 totalClaimed, uint256 start, uint256 end);
 
     /**
      *  @return Get the total amount of pools we have initialized
@@ -416,10 +413,11 @@ interface ICygnusComplexRewarder {
      *  @dev Returns the amount of CYG tokens that are pending to be claimed by the user.
      *
      *  @param borrowable The address of the Cygnus borrow contract.
+     *  @param position Whether the user is lending or borrowing
      *  @param _user The address of the user.
      *  @return The amount of CYG tokens pending to be claimed by `_user`.
      */
-    function pendingCyg(address borrowable, address _user) external view returns (uint256);
+    function pendingCyg(address borrowable, Position position, address _user) external view returns (uint256);
 
     /**
      *  @dev Get the time in seconds until this contract self-destructs
@@ -472,6 +470,16 @@ interface ICygnusComplexRewarder {
      */
     function epochRewardsPacing() external view returns (uint256);
 
+    /**
+     *  @return borrowRewardsWeight The percentage of total CYG rewards that goes to borrowers, the rest being given to lenders
+     */
+    function borrowRewardsWeight() external view returns (uint256);
+
+    /**
+     *  @return doomSwitch Whether the doom which is enabled or not
+     */
+    function doomSwitch() external view returns (bool);
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             4. NON-CONSTANT FUNCTIONS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -481,6 +489,7 @@ interface ICygnusComplexRewarder {
      *  it to the specified recipient address.
      *
      *  @param borrowable Address of the borrowable contract for which to harvest rewards.
+     *  @param position Collect lending or borrowing position (0 for lending, 1 for borrowing)
      *  @param to Address to which to transfer the harvested rewards.
      *
      *  Effects:
@@ -491,7 +500,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:security non-reentrant
      */
-    function collect(address borrowable, address to) external;
+    function collect(address borrowable, Position position, address to) external;
 
     /**
      *  @dev Harvests the accumulated reward for the specified user from all initialized borrowables;
@@ -506,22 +515,21 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:security non-reentrant
      */
-    function collectAll(address to) external;
+    function collectCygAll(Position position, address to) external;
 
     /**
-     *  @dev Tracks the borrow activity of a borrower in a specific borrowable asset.
+     *  @dev Tracks rewards for lenders and borrowers.
      *
-     *  @param borrower The address of the borrower.
-     *  @param borrowBalance The current borrow balance of the borrower.
-     *  @param borrowIndex The current borrow index of the borrowable asset.
+     *  @param account The address of the lender or borrower
+     *  @param balance The updated balance of the account
+     *  @param adjustmentFactor The updated borrow index of the borrowable asset or 1e18 for lenders
+     *  @param position Whether the account has a borrow or lend position
      *
      *  Effects:
      *  - Updates the shares and reward debt of the borrower in the borrowable asset's pool.
      *  - Updates the total shares of the borrowable asset's pool.
-     *
-     *  @custom:security non-reentrant
      */
-    function trackBorrower(address borrower, uint borrowBalance, uint borrowIndex) external;
+    function trackRewards(address account, uint256 balance, uint256 adjustmentFactor, Position position) external;
 
     /**
      *  @dev Updates all the pool rewards, callable by anyone
@@ -532,9 +540,9 @@ interface ICygnusComplexRewarder {
 
     /**
      *  @notice Update the specified shuttle's reward variables to the current timestamp.
-     *  @notice Updates the reward information for a specific borrowable asset. It retrieves the current 
-     *          ShuttleInfo for the asset, calculates the reward to be distributed based on the time elapsed 
-     *          since the last distribution and the pool's allocation point, updates the accumulated reward 
+     *  @notice Updates the reward information for a specific borrowable asset. It retrieves the current
+     *          ShuttleInfo for the asset, calculates the reward to be distributed based on the time elapsed
+     *          since the last distribution and the pool's allocation point, updates the accumulated reward
      *          per share based on the reward distributed, and stores the updated ShuttleInfo for the asset.
      *
      *  @param borrowable The address of the borrowable asset to update.
@@ -584,7 +592,6 @@ interface ICygnusComplexRewarder {
      */
     function adjustShuttleRewards(uint256 shuttleId, uint256 allocPoint) external;
 
-
     /**
      *  @notice Admin 👽
      *  @notice Updates the `cygPerBlock`
@@ -597,11 +604,29 @@ interface ICygnusComplexRewarder {
 
     /**
      *  @notice Admin 👽
+     *  @notice Updates the `borrowerRewardWeight`
+     *
+     *  @param _newRewardWeight The new reward weight given to the borrowers
+     *
+     *  @custom:security non-reentrant only-admin
+     */
+    function setRewardWeights(uint256 _newRewardWeight) external;
+
+    /**
+     *  @notice Admin 👽
      *  @notice Recovers any ERC20 token accidentally sent to this contract, sent to msg.sender
      *
      *  @param token The address of the token we are recovering
      *
-     *  @custom:security non-reentrant only-admin
+     *  @custom:security only-admin
      */
     function sweepToken(address token) external;
+
+    /**
+     *  @notice Admin 👽
+     *  @notice Set the doom switch on the last epoch
+     *  @custom:security only-admin
+     *
+     */
+    function setDoomSwitch() external;
 }

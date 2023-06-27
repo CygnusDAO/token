@@ -1,4 +1,21 @@
-// SPDX-License-Identifier: Unlicense
+//  SPDX-License-Identifier: AGPL-3.0-or-later
+//
+//  ICygnusBorrow.sol
+//
+//  Copyright (C) 2023 CygnusDAO
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Affero General Public License for more details.
+//
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity >=0.8.17;
 
 // Dependencies
@@ -9,6 +26,7 @@ import {ICygnusTerminal} from "./ICygnusTerminal.sol";
 
 /**
  *  @title ICygnusBorrow Interface for the main Borrow contract which handles borrows/liquidations
+ *  @notice Main interface to borrow against collateral or liquidate positions
  */
 interface ICygnusBorrow is ICygnusBorrowVoid {
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
@@ -114,11 +132,6 @@ interface ICygnusBorrow is ICygnusBorrowVoid {
 
     /*  ─────────────────────────────────────────────── Public ────────────────────────────────────────────────  */
 
-    /**
-     *  @notice Overrides the exchange rate of `CygnusTerminal` for borrow contracts to mint reserves
-     */
-    function exchangeRate() external override(ICygnusTerminal) returns (uint256);
-
     /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
 
     /**
@@ -131,12 +144,7 @@ interface ICygnusBorrow is ICygnusBorrowVoid {
      *
      *  @custom:security non-reentrant
      */
-    function borrow(
-        address borrower,
-        address receiver,
-        uint256 borrowAmount,
-        bytes calldata data
-    ) external;
+    function borrow(address borrower, address receiver, uint256 borrowAmount, bytes calldata data) external;
 
     /**
      *  @notice This low level function should only be called from `CygnusAltair` contract only
@@ -159,7 +167,7 @@ interface ICygnusBorrow is ICygnusBorrowVoid {
     /**
      *  @notice Syncs internal balance with totalBalance
      *
-     *  @custom:security non-reentrant only-eoa
+     *  @custom:security non-reentrant
      */
     function sync() external;
 }

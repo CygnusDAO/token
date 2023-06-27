@@ -7,21 +7,26 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "borrower",
+          "name": "account",
           "type": "address"
         },
         {
           "internalType": "uint256",
-          "name": "borrowBalance",
+          "name": "balance",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
-          "name": "borrowIndex",
+          "name": "adjustmentFactor",
           "type": "uint256"
+        },
+        {
+          "internalType": "enum ICygnusComplexRewarder.Position",
+          "name": "position",
+          "type": "uint8"
         }
       ],
-      "name": "trackBorrower",
+      "name": "trackRewards",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

@@ -1,11 +1,29 @@
-// SPDX-License-Identifier: Unlicense
+//  SPDX-License-Identifier: AGPL-3.0-or-later
+//
+//  ICygnusCollateral.sol
+//
+//  Copyright (C) 2023 CygnusDAO
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Affero General Public License for more details.
+//
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 pragma solidity >=0.8.17;
 
 // Dependencies
 import {ICygnusCollateralVoid} from "./ICygnusCollateralVoid.sol";
 
 /**
- *  @title ICygnusCollateral Interface for the main collateral contract which handles collateral seizes
+ *  @title ICygnusCollateral
+ *  @notice Interface for the main collateral contract which handles collateral seizes and flash redeems
  */
 interface ICygnusCollateral is ICygnusCollateralVoid {
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
@@ -29,14 +47,14 @@ interface ICygnusCollateral is ICygnusCollateralVoid {
     /**
      *  @dev Reverts when the repayAmount in a liquidation is 0
      *
-     *  @custom:error CantLiquidateZero 
+     *  @custom:error CantLiquidateZero
      */
     error CygnusCollateral__CantLiquidateZero();
 
     /**
      *  @dev Reverts when trying to redeem 0 tokens
      *
-     *  @custom:error CantRedeemZero 
+     *  @custom:error CantRedeemZero
      */
     error CygnusCollateral__CantRedeemZero();
 
@@ -59,7 +77,28 @@ interface ICygnusCollateral is ICygnusCollateralVoid {
      *
      *  @custom:error InsufficientRedeemAmount
      */
-    error CygnusCollateral__InsufficientRedeemAmount();
+    error CygnusCollateral__InsufficientCygLPReceived();
+
+    /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
+            2. CUSTOM EVENTS
+        ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
+
+    /**
+     *  @dev Logs when collateral is seized from the borrower and sent to the liquidator
+     *
+     *  @param liquidator The address of the liquidator
+     *  @param borrower The address of the borrower being liquidated
+     *  @param cygLPAmount The amount of CygLP seized and sent to the liquidator
+     *  @param daoFee The amount of CygLP sent to the DAO Reserves
+     *  @param seized The total amount of CygLP seized from the borrower
+     */
+    event SeizeCygLP(
+        address indexed liquidator,
+        address indexed borrower,
+        uint256 cygLPAmount,
+        uint256 daoFee,
+        uint256 seized
+    );
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             4. NON-CONSTANT FUNCTIONS

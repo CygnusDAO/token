@@ -1,4 +1,39 @@
-// SPDX-License-Identifier: Unlicense
+//  SPDX-License-Identifier: AGPL-3.0-or-later
+//
+//  CygnusComplexRewarder.sol
+//
+//  Copyright (C) 2023 CygnusDAO
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Affero General Public License for more details.
+//
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+/*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════════  
+    .              .            .               .      🛰️     .           .                .           .
+           █████████           ---======*.                                                 .           ⠀
+          ███░░░░░███                                               📡                🌔                      . 
+         ███     ░░░  █████ ████  ███████ ████████   █████ ████  █████        ⠀
+        ░███         ░░███ ░███  ███░░███░░███░░███ ░░███ ░███  ███░░      .     .⠀           .           .
+        ░███          ░███ ░███ ░███ ░███ ░███ ░███  ░███ ░███ ░░█████       ⠀
+        ░░███     ███ ░███ ░███ ░███ ░███ ░███ ░███  ░███ ░███  ░░░░███              .             .⠀
+         ░░█████████  ░░███████ ░░███████ ████ █████ ░░████████ ██████     .----===*  ⠀
+          ░░░░░░░░░    ░░░░░███  ░░░░░███░░░░ ░░░░░   ░░░░░░░░ ░░░░░░            .                           .⠀
+           🛰️          ███ ░███  ███ ░███                .                 .                 .⠀
+        .             ░░██████  ░░██████                🛰️                             .                 .     
+                       ░░░░░░    ░░░░░░      -------=========*         🛰️             .                     ⠀
+           .                            .       .          .            .                        .             .⠀
+        
+        CYG Complex Rewarder - https://cygnusdao.finance                                                          .                     .
+    ═══════════════════════════════════════════════════════════════════════════════════════════════════════════  */
 pragma solidity >=0.8.17;
 
 // Dependencies
@@ -12,6 +47,7 @@ import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
 // Interfaces
 import {IHangar18} from "./interfaces/core/IHangar18.sol";
 import {IERC20} from "./interfaces/core/IERC20.sol";
+import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
 
 /**
  *  @notice Main contract used by Cygnus Protocol to reward users in CYG. It is similar to a masterchef contract
@@ -26,14 +62,14 @@ import {IERC20} from "./interfaces/core/IERC20.sol";
  *                   1.6M |_______.
  *                        |       |
  *                   1.4M |       |
- *                        |       |                    Example with 3M totalRewards and 5.5% reduction factor
+ *                        |       |                         Example with 3M totalRewards, 5% reduction and 48 epochs
  *                   1.2M |       |
  *                        |       |                                Epochs    |    Rewards
  *                     1M |       |                             -------------|---------------
- *                        |       |                               00 - 11    | 1,583,165.28
- *          rewards  800k |       |_______.                       12 - 23    |   802,985.97
- *                        |       |       |                       24 - 35    |   407,276.79
- *                   600k |       |       |                       36 - 47    |   206,571.96
+ *                        |       |                               00 - 11	   | 1,583,165.28
+ *          rewards  800k |       |_______.                       12 - 23	   |   802,985.97
+ *                        |       |       |                       24 - 35	   |   407,276.79
+ *                   600k |       |       |                       36 - 47	   |   206,571.96
  *                        |       |       |                                  | 3,000,000.00
  *                   400k |       |       |_______.
  *                        |       |       |       |
@@ -104,6 +140,7 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
         uint256 accRewardPerShare;
         uint256 lastRewardTime;
         uint256 allocPoint;
+        address bonusRewarder;
     }
 
     /**
@@ -131,12 +168,14 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
     /**
      *  @inheritdoc ICygnusComplexRewarder
      */
-    mapping(address => ShuttleInfo) public override getShuttleInfo;
+    mapping(address => mapping(Position => ShuttleInfo)) public getShuttleInfo; // Borrowable -> Position = POOL
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
      */
-    mapping(address => mapping(address => UserInfo)) public override getUserInfo;
+    mapping(address => mapping(Position => mapping(address => UserInfo))) public override getUserInfo; // Borrowable -> Position -> User Address = USER
+
+    // Constants
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
@@ -156,9 +195,7 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
     /**
      *  @inheritdoc ICygnusComplexRewarder
      */
-    uint256 public constant override BLOCKS_PER_YEAR = 31536000;
-
-    // Constants
+    uint256 public constant override BLOCKS_PER_YEAR = 31536000; // Doesn't take into account leap years
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
@@ -173,12 +210,12 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
     /**
      *  @inheritdoc ICygnusComplexRewarder
      */
-    uint256 public constant override DURATION = BLOCKS_PER_YEAR * 4; // 126144000
+    uint256 public constant override DURATION = BLOCKS_PER_YEAR * 4;
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
      */
-    uint256 public constant override TOTAL_EPOCHS = 48; // 1 month per epoch
+    uint256 public constant override TOTAL_EPOCHS = 96; // ~2 weeks per epoch
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
@@ -232,6 +269,16 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
      */
     uint256 public override lastEpochTime;
 
+    /**
+     *  @inheritdoc ICygnusComplexRewarder
+     */
+    uint256 public override borrowRewardsWeight = 0.80e18;
+
+    /**
+     *  @inheritdoc ICygnusComplexRewarder
+     */
+    bool public override doomSwitch;
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             3. CONSTRUCTOR
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -242,7 +289,6 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
      *  @param _hangar18 The address of the Hangar18 contract.
      *  @param _rewardToken The address of the reward token contract.
      *  @param _totalRewards The amount of CYG tokens to be distributed by the end of DURATION
-     *
      */
     constructor(IHangar18 _hangar18, address _rewardToken, uint256 _totalRewards) {
         // Total CYG to be distributed
@@ -312,11 +358,11 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
      *  @custom:modifier advance Advances the epoch if necessary and self-destructs contract if all epochs are finished
      */
     modifier advance() {
-        // Advance epoch and it checks to self-destruct if 1 epoch is passed
+        // Try and addvance epoch
         advanceEpochPrivate();
-        _;
         // Update all pools if we didn't self-destruct
         acceleratePrivate();
+        _;
     }
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
@@ -374,11 +420,8 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
         // Get the current timestamp
         uint256 currentTime = getBlockTimestamp();
 
-        // If time is after death return total epochs
-        if (currentTime >= death) {
-            // Contract has expired
-            return TOTAL_EPOCHS;
-        }
+        // Contract has expired
+        if (currentTime >= death) return TOTAL_EPOCHS;
 
         // Current epoch
         currentEpoch = (currentTime - birth) / BLOCKS_PER_EPOCH;
@@ -450,17 +493,25 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
         rewardRate = rewards / BLOCKS_PER_EPOCH;
     }
 
+    function getRewardWeights() public view returns (uint256 borrowers, uint256 lenders) {
+        // The % of total CYG that is given to borrowers
+        borrowers = borrowRewardsWeight;
+
+        // The % given to lenders
+        lenders = 1e18 - borrowers;
+    }
+
     /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
      */
-    function pendingCyg(address borrowable, address borrower) external view override returns (uint256 pending) {
+    function pendingCyg(address borrowable, Position position, address borrower) external view override returns (uint256 pending) {
         // Load pool to memory
-        ShuttleInfo memory shuttle = getShuttleInfo[borrowable];
+        ShuttleInfo memory shuttle = getShuttleInfo[borrowable][position];
 
         // Load user to memory
-        UserInfo memory user = getUserInfo[borrowable][borrower];
+        UserInfo memory user = getUserInfo[borrowable][position][borrower];
 
         // Load the accumulated reward per share
         uint256 accRewardPerShare = shuttle.accRewardPerShare;
@@ -661,16 +712,17 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
     }
 
     /**
-     * @dev Internal function that destroys the contract and transfers remaining funds to the owner.
+     *  @dev Internal function that destroys the contract and transfers remaining funds to the owner.
      */
     function supernovaPrivate() private {
         // Get epoch, uses block.timestamp - keep this function separate to getCurrentEpoch for simplicity
         uint256 epoch = getCurrentEpoch();
 
         // Check if current epoch is less than total epochs
-        if (epoch < TOTAL_EPOCHS) {
-            return;
-        }
+        if (epoch < TOTAL_EPOCHS) return;
+
+        // Assert we are doomed, can only be set my admin (ideally in the last epoch)
+        assert(doomSwitch);
 
         // Get the current admin from the factory
         address admin = hangar18.admin();
@@ -679,9 +731,7 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
         emit Supernova(msg.sender, birth, death, epoch);
 
         // Hail Satan!
-        // selfdestruct(payable(admin));
-        // Shh
-        admin;
+        selfdestruct(payable(admin));
     }
 
     /**
@@ -693,9 +743,9 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
      *  @param borrowable The address of the borrowable asset to update.
      *  @return shuttle The updated ShuttleInfo struct.
      */
-    function updateShuttlePrivate(address borrowable) private returns (ShuttleInfo storage shuttle) {
+    function updateShuttlePrivate(address borrowable, Position position) private returns (ShuttleInfo storage shuttle) {
         // Get the pool information
-        shuttle = getShuttleInfo[borrowable];
+        shuttle = getShuttleInfo[borrowable][position];
 
         // Current timestamp
         uint256 timestamp = getBlockTimestamp();
@@ -706,6 +756,7 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
             uint256 totalShares = shuttle.totalShares;
 
             if (totalShares > 0) {
+                // Get the time elapsed to calculate the reward
                 uint256 timeElapsed;
 
                 // Never underflows
@@ -741,59 +792,77 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
 
         // Loop through each shuttle
         for (uint256 i = 0; i < totalShuttles; i++) {
-            // Update shuttle
-            updateShuttlePrivate(shuttles[i]);
+            // Update borrowers pool
+            updateShuttlePrivate(shuttles[i], Position.BORROWER);
+
+            // Update lenders pool
+            updateShuttlePrivate(shuttles[i], Position.LENDER);
         }
     }
 
-    function collectPrivate(address borrowable, address to) private {
+    /**
+     *  @notice Collects the CYG the msg.sender has accrued and sends to `to`
+     *  @param borrowable The address of the borrowable where borrows are stored
+     *  @param to The address to send msg.sender's rewards to
+     */
+    function collectPrivate(address borrowable, Position position, address to) private {
         // Update the pool to ensure the user's reward calculation is up-to-date.
-        ShuttleInfo memory shuttle = updateShuttlePrivate(borrowable);
+        ShuttleInfo storage shuttle = updateShuttlePrivate(borrowable, position);
 
         // Retrieve the user's info for the specified borrowable address.
-        UserInfo storage user = getUserInfo[borrowable][msg.sender];
+        UserInfo storage user = getUserInfo[borrowable][position][msg.sender];
 
-        // Calculate the user's accumulated reward based on their shares and the pool's accumulated reward per share.
-        int256 accumulatedReward = int256((user.shares * shuttle.accRewardPerShare) / ACC_PRECISION);
+        // Avoid stack too deep
+        uint256 cygAmount;
 
-        // Calculate the pending reward for the user by subtracting their stored reward debt from their accumulated reward.
-        uint256 newRewards = uint256(accumulatedReward - user.rewardDebt);
+        {
+            // Calculate the user's accumulated reward based on their shares and the pool's accumulated reward per share.
+            int256 accumulatedReward = int256((user.shares * shuttle.accRewardPerShare) / ACC_PRECISION);
 
-        // If no rewards then return and don't collect
-        if (newRewards == 0) return;
+            // Calculate the pending reward for the user by subtracting their stored reward debt from their accumulated reward.
+            cygAmount = uint256(accumulatedReward - user.rewardDebt);
 
-        // Update the user's reward debt to reflect the current accumulated reward.
-        user.rewardDebt = accumulatedReward;
+            // If no rewards then return and don't collect
+            if (cygAmount == 0) return;
+
+            // Update the user's reward debt to reflect the current accumulated reward.
+            user.rewardDebt = accumulatedReward;
+        }
 
         // Get current epoch
         uint256 currentEpoch = getCurrentEpoch();
 
-        // Claim
-        getEpochInfo[currentEpoch].totalClaimed += newRewards;
+        // Update total claimed for this epoch
+        getEpochInfo[currentEpoch].totalClaimed += cygAmount;
 
-        // Transfer CYG
-        cygToken.safeTransfer(to, newRewards);
+        // Check that total claimed this epoch is not above the max we can mint for this epoch
+        if (getEpochInfo[currentEpoch].totalClaimed > getEpochInfo[currentEpoch].totalRewards) revert();
+
+        // Mint new CYG
+        IERC20(cygToken).mint(to, cygAmount);
 
         /// @custom:event CollectCYG
-        emit CollectReward(borrowable, currentEpoch, msg.sender, newRewards);
+        emit CollectReward(borrowable, currentEpoch, msg.sender, cygAmount);
     }
 
     /*  ─────────────────────────────────────────────── Public ────────────────────────────────────────────────  */
 
+    /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
+
     /**
      *  @inheritdoc ICygnusComplexRewarder
      *  @custom:security non-reentrant
      */
-    function collect(address borrowable, address to) public override nonReentrant advance {
+    function collect(address borrowable, Position position, address to) external override nonReentrant advance {
         // Checks to see if there is any pending CYG to be collected and sends to user
-        collectPrivate(borrowable, to);
+        collectPrivate(borrowable, position, to);
     }
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
      *  @custom:security non-reentrant
      */
-    function collectAll(address to) external override nonReentrant advance {
+    function collectCygAll(Position position, address to) external override nonReentrant advance {
         // Get shuttles array for gas savings
         address[] memory shuttles = allShuttles;
 
@@ -803,7 +872,7 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
         // Loop through each shuttle and check if there is CYG to collect
         for (uint256 i = 0; i < totalShuttles; ) {
             // Collect CYG private for shuttle `i`
-            collectPrivate(shuttles[i], to);
+            collectPrivate(shuttles[i], position, to);
 
             // Next iteration
             unchecked {
@@ -814,35 +883,23 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
-     *  @custom:security non-reentrant
      */
-    function accelerateTheUniverse() public override nonReentrant advance {
-        // Update all current shuttles
-        acceleratePrivate();
+    function trackRewards(address account, uint256 balance, uint256 adjustmentFactor, Position position) external {
+        // Escape if account is the zero address
+        if (account == address(0)) return;
 
-        /// @custom:event AccelerateTheUniverse
-        emit AccelerateTheUniverse(shuttlesLength(), msg.sender, getCurrentEpoch());
-    }
-
-    /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
-
-    /**
-     *  @inheritdoc ICygnusComplexRewarder
-     *  @custom:security non-reentrant
-     */
-    function trackBorrower(address borrower, uint borrowBalance, uint borrowIndex) external override {
         // Interactions
         address borrowable = msg.sender;
 
         // Update the pool information for the borrowable asset
-        // Load to storage for gas savings (cheaper than memory in this case)
-        ShuttleInfo storage shuttle = updateShuttlePrivate(borrowable);
+        // Load to storage for gas savings, not updating
+        ShuttleInfo storage shuttle = updateShuttlePrivate(borrowable, position);
 
         // Get the user information for the borrower in the borrowable asset's pool
-        UserInfo storage user = getUserInfo[borrowable][borrower];
+        UserInfo storage user = getUserInfo[borrowable][position][account];
 
         // Calculate the new shares for the borrower based on their current borrow balance and borrow index
-        uint256 newShares = borrowBalance.fullMulDiv(SHARES_PRECISION, borrowIndex);
+        uint256 newShares = balance.fullMulDiv(SHARES_PRECISION, adjustmentFactor);
 
         // Calculate the difference in shares for the borrower and update their shares
         int256 diffShares = int256(newShares) - int256(user.shares);
@@ -856,20 +913,23 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
         // Update reward debt
         user.rewardDebt = user.rewardDebt + diffRewardDebt;
 
-        // Update the total shares of the borrowable asset's pool
+        // Update the total shares of the pool of `borrowable` and `position`
         shuttle.totalShares = uint256(int256(shuttle.totalShares) + diffShares);
 
         /// @custom:event TrackShuttle
-        emit TrackShuttle(borrowable, borrower, borrowBalance, borrowIndex);
+        emit TrackRewards(borrowable, account, balance, adjustmentFactor, position);
     }
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
-     *  @custom:security non-reentrant
+     *  @custom:security non-reentrant only-eoa
      */
-    function updateShuttle(address borrowable) external override nonReentrant advance {
-        // Update pool
-        updateShuttlePrivate(borrowable);
+    function updateShuttle(address borrowable) external override nonReentrant onlyEOA advance {
+        // Update the borrower's pool for this borrowable
+        updateShuttlePrivate(borrowable, Position.BORROWER);
+
+        // Update the lender's pool for this borrowable
+        updateShuttlePrivate(borrowable, Position.LENDER);
     }
 
     /**
@@ -885,9 +945,44 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
      *  @inheritdoc ICygnusComplexRewarder
      *  @custom:security non-reentrant only-eoa
      */
-    function advanceEpoch() external override nonReentrant onlyEOA advance {}
+    function advanceEpoch() external override nonReentrant onlyEOA advance {
+        //
+        // The advance modifier will loop through each shuttle and update rewards for each borrow/lend pool
+        //
+    }
+
+    /**
+     *  @inheritdoc ICygnusComplexRewarder
+     *  @custom:security non-reentrant only-eoa
+     */
+    function accelerateTheUniverse() external override nonReentrant onlyEOA advance {
+        //
+        // The advance modifier will loop through each shuttle and update rewards for each borrow/lend pool
+        //
+        /// @custom:event AccelerateTheUniverse
+        emit AccelerateTheUniverse(shuttlesLength(), msg.sender, getCurrentEpoch());
+    }
 
     /*  ────────── Admin ────────── */
+
+    /**
+     *  @notice Bonus rewards are only for borrowers
+     */
+    function setBonusRewarder(uint256 shuttleId, address bonusRewarder) external nonReentrant advance cygnusAdmin {
+        // Retrieve shuttle information from Hangar 18.
+        (, , address borrowable, , ) = hangar18.allShuttles(shuttleId);
+
+        // Retrieve the pool information for the specified shuttle's borrowable address.
+        ShuttleInfo storage shuttle = getShuttleInfo[borrowable][Position.BORROWER];
+
+        /// @custom:error ShuttleNotInitialized Avoid adjusting rewards for an un-active shuttle
+        if (shuttle.active == false) {
+            revert CygnusComplexRewarder__ShuttleNotInitialized({shuttleId: shuttleId, borrowable: borrowable});
+        }
+
+        // Assign bonus shuttle rewards
+        shuttle.bonusRewarder = bonusRewarder;
+    }
 
     /**
      *  @inheritdoc ICygnusComplexRewarder
@@ -898,24 +993,36 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
         (, , address borrowable, , ) = hangar18.allShuttles(shuttleId);
 
         // Retrieve the pool information for the specified shuttle's borrowable address.
-        ShuttleInfo storage shuttle = getShuttleInfo[borrowable];
+        ShuttleInfo storage borrowRewards = getShuttleInfo[borrowable][Position.BORROWER];
 
         /// @custom:error ShuttleAlreadyInitialized Avoid initializing twice
-        if (shuttle.active == true) {
+        if (borrowRewards.active == true) {
             revert CygnusComplexRewarder__ShuttleAlreadyInitialized({shuttleId: shuttleId, borrowable: borrowable});
         }
+
+        // Create lending rewards too
+        ShuttleInfo storage lenderRewards = getShuttleInfo[borrowable][Position.LENDER];
 
         // Update the total allocation point by subtracting the old allocation point and adding the new one for the specified pool.
         totalAllocPoint += allocPoint;
 
         // Set as active, can't be set to false again
-        shuttle.active = true;
+        borrowRewards.active = true;
 
-        // Unique ID
-        shuttle.shuttleId = shuttleId;
+        // Mark lender rewards as active also
+        lenderRewards.active = true;
 
-        // Update the allocation point for the specified pool.
-        shuttle.allocPoint = allocPoint;
+        // Assign shuttle ID (the ID of the lending pools)
+        borrowRewards.shuttleId = shuttleId;
+
+        // Same as borrower's since it's the same lending pool
+        lenderRewards.shuttleId = shuttleId;
+
+        // Update the allocation point for the specified pools
+        borrowRewards.allocPoint = allocPoint.mulWad(borrowRewardsWeight);
+
+        // lenderRewards = 100% - borrowRewards
+        lenderRewards.allocPoint = allocPoint - borrowRewards.allocPoint;
 
         // Push to array
         allShuttles.push(borrowable);
@@ -928,26 +1035,32 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
      *  @inheritdoc ICygnusComplexRewarder
      *  @custom:security non-reentrant only-admin 👽
      */
-    function adjustShuttleRewards(uint256 shuttleId, uint256 allocPoint) external override nonReentrant advance cygnusAdmin {
+    function adjustShuttleRewards(uint256 shuttleId, uint256 allocPoint) external override advance cygnusAdmin {
         // Retrieve shuttle information from Hangar 18.
         (, , address borrowable, , ) = hangar18.allShuttles(shuttleId);
 
         // Retrieve the pool information for the specified shuttle's borrowable address.
-        ShuttleInfo storage shuttle = getShuttleInfo[borrowable];
+        ShuttleInfo storage borrowRewards = getShuttleInfo[borrowable][Position.BORROWER];
 
         /// @custom:error ShuttleNotInitialized Avoid adjusting rewards for an un-active shuttle
-        if (shuttle.active == false) {
+        if (borrowRewards.active == false) {
             revert CygnusComplexRewarder__ShuttleNotInitialized({shuttleId: shuttleId, borrowable: borrowable});
         }
 
+        // Retrieve the pool information for the specified shuttle's borrowable address.
+        ShuttleInfo storage lenderRewards = getShuttleInfo[borrowable][Position.LENDER];
+
         // Get previous alloc
-        uint256 previousAlloc = shuttle.allocPoint;
+        uint256 previousAlloc = borrowRewards.allocPoint + lenderRewards.allocPoint;
 
         // Update the total allocation point by subtracting the old allocation point and adding the new one for the specified pool.
-        totalAllocPoint = (totalAllocPoint - shuttle.allocPoint) + allocPoint;
+        totalAllocPoint = (totalAllocPoint - previousAlloc) + allocPoint;
 
-        // Update the allocation point for the specified pool.
-        shuttle.allocPoint = allocPoint;
+        // Update the allocation point for borrow rewards
+        borrowRewards.allocPoint = allocPoint.mulWad(borrowRewardsWeight);
+
+        // Update the allocation point for lender rewards
+        lenderRewards.allocPoint = allocPoint - borrowRewards.allocPoint;
 
         /// @custom:event NewShuttleAllocPoint
         emit NewShuttleAllocPoint(shuttleId, borrowable, previousAlloc, allocPoint);
@@ -958,20 +1071,12 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
      *  @inheritdoc ICygnusComplexRewarder
      *  @custom:security non-reentrant only-admin 👽
      */
-    function setCygPerBlock(uint256 _cygPerBlock) external override nonReentrant advance cygnusAdmin {
-        /// @custom:error CygPerBlockExceedsLimit Avoid setting above limit
-        if (_cygPerBlock > MAX_CYG_PER_BLOCK) {
-            revert CygnusComplexRewarder__CygPerBlockExceedsLimit({max: MAX_CYG_PER_BLOCK, value: _cygPerBlock});
-        }
+    function setRewardWeights(uint256 _borrowRewardsWeight) external override advance cygnusAdmin {
+        /// @custom:error InvalidTotalWeight
+        if (_borrowRewardsWeight > 1e18) revert CygnusComplexRewarder__InvalidTotalWeight();
 
-        // Previous rate
-        uint256 lastCygPerBlock = cygPerBlock;
-
-        // The cygPerBlock will reset to the original curve when new epoch starts.
-        cygPerBlock = _cygPerBlock;
-
-        /// @custom:event NewCygPerBlock
-        emit NewCygPerBlock(lastCygPerBlock, _cygPerBlock);
+        // Update weight
+        borrowRewardsWeight = _borrowRewardsWeight;
     }
 
     /**
@@ -994,5 +1099,33 @@ contract CygnusComplexRewarder is ICygnusComplexRewarder, ReentrancyGuard {
         emit SweepToken(token, msg.sender, balance, getCurrentEpoch());
     }
 
-    function dripDAOCyg() external nonReentrant advance cygnusAdmin {}
+    /**
+     *  @notice This shouldn't be used but we keep it in case we need to manually update the `cygPerBlock`
+     *  @inheritdoc ICygnusComplexRewarder
+     *  @custom:security non-reentrant only-admin 👽
+     */
+    function setCygPerBlock(uint256 _cygPerBlock) external override advance cygnusAdmin {
+        /// @custom:error CygPerBlockExceedsLimit Avoid setting above limit
+        if (_cygPerBlock > MAX_CYG_PER_BLOCK) {
+            revert CygnusComplexRewarder__CygPerBlockExceedsLimit({max: MAX_CYG_PER_BLOCK, value: _cygPerBlock});
+        }
+
+        // Previous rate
+        uint256 lastCygPerBlock = cygPerBlock;
+
+        // The cygPerBlock will reset to the original curve when new epoch starts.
+        cygPerBlock = _cygPerBlock;
+
+        /// @custom:event NewCygPerBlock
+        emit NewCygPerBlock(lastCygPerBlock, _cygPerBlock);
+    }
+
+    /**
+     *  @inheritdoc ICygnusComplexRewarder
+     *  @custom:security only-admin 👽
+     */
+    function setDoomSwitch() external override advance cygnusAdmin {
+        // Set the doom switch, cannot be turned off!
+        doomSwitch = true;
+    }
 }
