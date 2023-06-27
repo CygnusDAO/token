@@ -1,14 +1,15 @@
 # CYG Token and Complex Rewarder
 
-The CygnusComplexRewarder is a contract that allows users to collect CYG rewards based on their borrow amount.
+The CygnusComplexRewarder is a contract that allows borrowers and lenders to collect CYG based on how much they have deposited at the core contracts.
+Borrowers accrue CYG rewards based on their borrowed amount, while lenders accrue CYG rewards based on their deposited USD amount.
 
-It is bassed on the total amount of CYG rewards, the total number of epochs and an emissions curve that reduces each epoch's emissions by 5.5% until it reaches its planned death. 
+The CYG emissions per block is based on the total amount of CYG rewards, the total number of epochs and an emissions curve that reduces each epoch's emissions by 2.5% until it reaches its planned death. 
 
 ```javascript
   totalCygAtN = ((totalRewards - accumulatedRewards) * reductionFactor) / emissionsCurve(epoch)
 ```
 
-where totalRewards is the total amount of rewards that will be distributed over all epochs, accumulatedRewards is the total amount of rewards that have been distributed in previous epochs, reductionFactor is the percentage by which the rewards are reduced every epoch, and emissionsCurve(epoch) is the value returned by this function for the given epoch.
+where totalRewards is the total amount of rewards that will be distributed over all epochs, accumulatedRewards is the total amount of rewards that have been distributed in previous epochs, reductionFactor is the percentage by which the rewards are reduced every epoch, and emissionsCurve(epoch) is the function that returns the curve.
 
 The emissions curve is calculated using the following formula:
 
