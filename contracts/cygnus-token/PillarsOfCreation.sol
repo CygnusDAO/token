@@ -220,7 +220,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public constant override BLOCKS_PER_EPOCH = DURATION / TOTAL_EPOCHS; // ~30 Days per epoch
+    uint256 public constant override BLOCKS_PER_EPOCH = DURATION / TOTAL_EPOCHS; // ~14 Days per epoch
 
     /**
      *  @inheritdoc IPillarsOfCreation
