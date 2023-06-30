@@ -1,120 +1,6 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/CygnusComplexRewarder.sol": {
-      "lastModificationDate": 1687903440107,
-      "contentHash": "ff72bb28bc550d0688050fd927498ca6",
-      "sourceName": "contracts/cygnus-token/CygnusComplexRewarder.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./interfaces/ICygnusComplexRewarder.sol",
-        "./utils/ReentrancyGuard.sol",
-        "./libraries/SafeTransferLib.sol",
-        "./libraries/FixedPointMathLib.sol",
-        "./interfaces/core/IHangar18.sol",
-        "./interfaces/core/IERC20.sol",
-        "./interfaces/core/ICygnusTerminal.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "CygnusComplexRewarder"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/ICygnusComplexRewarder.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "b57eb4eab4c7a7f32e6e15b2a656c3dc",
-      "sourceName": "contracts/cygnus-token/interfaces/ICygnusComplexRewarder.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./core/IHangar18.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusComplexRewarder"
-      ]
-    },
     "/home/sorrowlol/cygnus-token/contracts/cygnus-token/utils/Context.sol": {
       "lastModificationDate": 1687903440115,
       "contentHash": "8a744dc1ffd2272b9919fac04f1d5bfd",
@@ -2246,6 +2132,120 @@
       ],
       "artifacts": [
         "Address"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/IPillarsOfCreation.sol": {
+      "lastModificationDate": 1688115862048,
+      "contentHash": "220214360885d0fe1035478041d8639a",
+      "sourceName": "contracts/cygnus-token/interfaces/IPillarsOfCreation.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./core/IHangar18.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.17"
+      ],
+      "artifacts": [
+        "IPillarsOfCreation"
+      ]
+    },
+    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/PillarsOfCreation.sol": {
+      "lastModificationDate": 1688115862056,
+      "contentHash": "0f9d4423a54a84b418b2ebd8de41951f",
+      "sourceName": "contracts/cygnus-token/PillarsOfCreation.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IPillarsOfCreation.sol",
+        "./utils/ReentrancyGuard.sol",
+        "./libraries/SafeTransferLib.sol",
+        "./libraries/FixedPointMathLib.sol",
+        "./interfaces/core/IHangar18.sol",
+        "./interfaces/core/IERC20.sol",
+        "./interfaces/core/ICygnusTerminal.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.17"
+      ],
+      "artifacts": [
+        "PillarsOfCreation"
       ]
     }
   }

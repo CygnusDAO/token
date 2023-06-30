@@ -6,7 +6,7 @@ import {IHangar18} from "./core/IHangar18.sol";
 /**
  *  @notice Interface to interact with CYG rewards
  */
-interface ICygnusComplexRewarder {
+interface IPillarsOfCreation {
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             1. CUSTOM ERRORS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -19,7 +19,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:error CygPerBlockExceedsLimit
      */
-    error CygnusComplexRewarder__CygPerBlockExceedsLimit(uint256 max, uint256 value);
+    error PillarsOfCreation__CygPerBlockExceedsLimit(uint256 max, uint256 value);
 
     /**
      *  @dev Reverts when attempting to call Admin-only functions
@@ -29,7 +29,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:error MsgSenderNotAdmin
      */
-    error CygnusComplexRewarder__MsgSenderNotAdmin(address admin, address sender);
+    error PillarsOfCreation__MsgSenderNotAdmin(address admin, address sender);
 
     /**
      *  @dev Reverts if tx.origin is not msg.sender
@@ -39,7 +39,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:error OnlyAccountsAllowed
      */
-    error CygnusComplexRewarder__OnlyEOAAllowed(address sender, address origin);
+    error PillarsOfCreation__OnlyEOAAllowed(address sender, address origin);
 
     /**
      *  @dev Reverts if msg.sender is not a CygnusBorrow contract
@@ -49,7 +49,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:error MsgSenderNotAdmin
      */
-    error CygnusComplexRewarder__MsgSenderNotBorrowable(address borrowable, address sender);
+    error PillarsOfCreation__MsgSenderNotBorrowable(address borrowable, address sender);
 
     /**
      *  @dev Reverts if borrowable is not initialized in the rewarder
@@ -59,7 +59,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:error ShuttleNotInitialized
      */
-    error CygnusComplexRewarder__ShuttleNotInitialized(uint256 shuttleId, address borrowable);
+    error PillarsOfCreation__ShuttleNotInitialized(uint256 shuttleId, address borrowable);
 
     /**
      *  @dev Reverts if borrowable is already initialized
@@ -69,7 +69,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:error ShuttleAlreadyInitialized
      */
-    error CygnusComplexRewarder__ShuttleAlreadyInitialized(uint256 shuttleId, address borrowable);
+    error PillarsOfCreation__ShuttleAlreadyInitialized(uint256 shuttleId, address borrowable);
 
     /**
      *  @dev Reverts when trying to sweep the underlying asset from this contract
@@ -79,14 +79,14 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:error CantSweepUnderlying
      */
-    error CygnusComplexRewarder__CantSweepUnderlying(address token, address underlying);
+    error PillarsOfCreation__CantSweepUnderlying(address token, address underlying);
 
     /**
      *  @dev Reverts when the total weight is above 100% when setting lender/borrower splits
      *
      *  @custom:error InvalidTotalWeight
      */
-    error CygnusComplexRewarder__InvalidTotalWeight();
+    error PillarsOfCreation__InvalidTotalWeight();
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             2. CUSTOM EVENTS
@@ -226,8 +226,8 @@ interface ICygnusComplexRewarder {
 
     /**
      *  @custom:enum Position Lending or Borrowing shuttle
-     *  @custom:member LENDER If we are tracking the user's CygUSD
-     *  @custom:memebr BROROWER If we are tracking the user's borrow balance
+     *  @custom:member LENDER Pass 0 to claim from lender pools
+     *  @custom:memebr BROROWER Pass 1 to claim from borrower pools
      */
     enum Position {
         LENDER,
@@ -480,6 +480,11 @@ interface ICygnusComplexRewarder {
      */
     function doomSwitch() external view returns (bool);
 
+    /**
+     *  @return daoReserves The latest address of the dao reserves in the hangar18 contract
+     */
+    function daoReserves() external view returns (address);
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             4. NON-CONSTANT FUNCTIONS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -515,7 +520,7 @@ interface ICygnusComplexRewarder {
      *
      *  @custom:security non-reentrant
      */
-    function collectCygAll(Position position, address to) external;
+    function collectAll(Position position, address to) external;
 
     /**
      *  @dev Tracks rewards for lenders and borrowers.
@@ -534,7 +539,7 @@ interface ICygnusComplexRewarder {
     /**
      *  @dev Updates all the pool rewards, callable by anyone
      *
-     *  @custom:security non-reentrant
+     *  @custom:security non-reentrant only-eoa
      */
     function accelerateTheUniverse() external;
 
@@ -547,21 +552,14 @@ interface ICygnusComplexRewarder {
      *
      *  @param borrowable The address of the borrowable asset to update.
      *
-     *  @custom:security non-reentrant
+     *  @custom:security non-reentrant only-eoa
      */
     function updateShuttle(address borrowable) external;
 
     /**
-     *  @dev Advances the epoch for CYG emissions.
-     *
-     *  @custom:security non-reentrant
-     */
-    function advanceEpoch() external;
-
-    /**
      *  @dev Destroys the contract and transfers remaining funds to the owner. Can only be called after 4 years from deployment.
      *
-     *  @custom:security non-reentrant
+     *  @custom:security non-reentrant only-eoa
      */
     function supernova() external;
 
@@ -591,6 +589,15 @@ interface ICygnusComplexRewarder {
      *  @custom:security non-reentrant only-admin
      */
     function adjustShuttleRewards(uint256 shuttleId, uint256 allocPoint) external;
+
+    /**
+     *  @notice Admin 👽
+     *  @notice Sets a bonus rewarder to reward borrowers in a bonsu token (this is only applicable for borrowers)
+     *  @param shuttleId The lending pool ID
+     *  @param bonusRewarder The address of the bonus rewarder
+     *  @custom:security only-admin
+     */
+    function setBonusRewarder(uint256 shuttleId, address bonusRewarder) external;
 
     /**
      *  @notice Admin 👽
