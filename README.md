@@ -1,6 +1,6 @@
-# CYG Token and Complex Rewarder
+# CYG Token Rewarder
 
-The CygnusComplexRewarder is a contract that allows borrowers and lenders to collect CYG based on how much they have deposited at the core contracts.
+The Pillars Of Creation is a contract that allows borrowers and lenders to collect CYG based on how much they have deposited at the core contracts.
 Borrowers accrue CYG rewards based on their borrowed amount, while lenders accrue CYG rewards based on their deposited USD amount.
 
 The CYG emissions per block is based on the total amount of CYG rewards, the total number of epochs and an emissions curve that reduces each epoch's emissions by 2.5% until it reaches its planned death. 
