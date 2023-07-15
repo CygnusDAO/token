@@ -29,6 +29,18 @@ interface ICygnusDAOReserves {
     /// @custom:error WeightNotAllowed
     error CygnusDAOReserves__WeightNotAllowed(uint256 weight);
 
+    /// @dev Reverts when trying to claim cyg before lock period ends
+    error CygnusDAOReserves__CantClaimCygYet(uint256 time, uint256 claimAt);
+
+    /// @dev Reverts when theres not enough cyg to claim
+    error CygnusDAOReserves__NotEnoughCyg(uint256 amount, uint256 balance);
+
+    /// @dev Reverts if borrowable is not set
+    error CygnusDAOReserves__CantRedeemAddressZero();
+
+    /// @dev Reverts when deploying with zero address as the dao safe
+    error CygnusDAOReserves__DaoSafeCantBeZero();
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             2. CUSTOM EVENTS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -65,13 +77,37 @@ interface ICygnusDAOReserves {
     /// @param vault The address of the X1 Vault
     /// @param shares The amount of CygUSD redeemed
     /// @param assets The amount of assets received
+    /// @custom:event FundX1VaultAll
     event FundX1VaultAll(uint256 totalShuttles, address vault, uint256 shares, uint256 assets);
 
     /// @dev Logs When the Cygnus X1 Vault is funded by all shuttles
     /// @param totalShuttles The amount of lending pools we harvested
     /// @param positions The address of the DAO Positions
     /// @param shares The amount of shares transfered to DAO Positions
+    /// @custom:event FundDAOReservesAll
     event FundDAOReservesAll(uint256 totalShuttles, address positions, uint256 shares);
+
+    /// @dev Logs when permissions for splitting shares and assets are switched
+    /// @param _privateBanker Whether only admin can split or anyone can (true = only admin)
+    /// @custom:event SwitchPrivateBanker
+    event SwitchPrivateBanker(bool _privateBanker);
+
+    /// @dev Logs when the DAO claims their shares of CYG token
+    /// @param amount Amount claimed of CYG token
+    /// @param to Address who received the CYG tokens
+    /// @custom:event ClaimCygToken
+    event ClaimCygToken(uint256 amount, address to);
+
+    /// @dev Logs when admin sweeps a token (throws is the token is CYG)
+    /// @param token The address of the token
+    /// @param balance The balance of the token claimed
+    /// @custom:event SweepToken
+    event SweepToken(address token, uint256 balance);
+
+    /// @dev Logs when admin adds the CYG token
+    /// @param token The address of the CYG token
+    /// @custom:event CygTokenAdded
+    event CygTokenAdded(address token);
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             3. CONSTANT FUNCTIONS
@@ -108,13 +144,13 @@ interface ICygnusDAOReserves {
     /// @return collateral The address of the collateral asset.
     function getShuttle(uint256 id) external view returns (bool initialized, uint256 shuttleId, address borrowable, address collateral);
 
-    /// @dev Retrieves the address of the Cygnus DAO positions.
-    /// @return The address of the CygnusDAO positions.
-    function daoReserves() external view returns (address);
-
     /// @dev Retrieves the address of the Hangar18 contract.
     /// @return The address of the Hangar18 contract.
     function hangar18() external view returns (IHangar18);
+
+    /// @dev Retrieves the address of the Cygnus DAO positions.
+    /// @return The address of the CygnusDAO positions.
+    function cygnusDAOSafe() external view returns (address);
 
     /// @dev Retrieves the address of the CygnusX1Vault contract.
     /// @return The address of the CygnusX1Vault contract.
@@ -135,6 +171,18 @@ interface ICygnusDAOReserves {
     /// @dev Retrieves the length of the allShuttles array.
     /// @return The length of the allShuttles array.
     function allShuttlesLength() external view returns (uint256);
+
+    /// @dev Address of the CYG token
+    function cygToken() external view returns (address);
+
+    /// @dev current balance of CYg
+    function cygTokenBalance() external view returns (uint256);
+
+    /// @dev The unlock cyg DAO time
+    function daoLock() external view returns (uint256);
+
+    /// @dev Whether anyone can split shares and assets
+    function privateBanker() external view returns (bool);
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             4. NON-CONSTANT FUNCTIONS
@@ -168,4 +216,18 @@ interface ICygnusDAOReserves {
     /// @param shuttleId The ID for the shuttle we are adding
     /// @custom:security non-reentrant only-admin
     function addShuttle(uint256 shuttleId) external;
+
+    /// @notice Sweeps any token sent to this contract except the CYG token
+    /// @param token The address of the token being swept
+    function sweepToken(address token) external;
+
+    /// @notice Sends an amount of `cygToken` to `to`
+    function claimCygTokenDAO(uint256 amount, address to) external;
+
+    /// @notice Sets the CYG token
+    function setCYGToken(address _token) external;
+
+    /// @notice Admin allows anyone to split the shares/assets between the DAO Reserves and X1 Vault
+    /// @custom:security only-admin
+    function switchPrivateBanker() external;
 }

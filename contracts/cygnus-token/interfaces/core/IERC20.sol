@@ -76,6 +76,6 @@ interface IERC20 {
      */
     function decimals() external view returns (uint8);
 
-    function mint(address to, uint256 amount) external;
-
+    // Mint
+    function mint(address, uint256) external;
 }

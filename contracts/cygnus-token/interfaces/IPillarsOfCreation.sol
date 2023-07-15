@@ -14,12 +14,9 @@ interface IPillarsOfCreation {
     /**
      *  @dev Reverts if the cyg per block passed is above max
      *
-     *  @param max The maximum cyg per block allowed
-     *  @param value The value passed
-     *
      *  @custom:error CygPerBlockExceedsLimit
      */
-    error PillarsOfCreation__CygPerBlockExceedsLimit(uint256 max, uint256 value);
+    error PillarsOfCreation__CygPerBlockExceedsLimit();
 
     /**
      *  @dev Reverts when attempting to call Admin-only functions
@@ -52,24 +49,25 @@ interface IPillarsOfCreation {
     error PillarsOfCreation__MsgSenderNotBorrowable(address borrowable, address sender);
 
     /**
-     *  @dev Reverts if borrowable is not initialized in the rewarder
-     *
-     *  @param shuttleId The ID of this lending pool
-     *  @param borrowable The address of the CygnusBorrow contract
+     *  @dev Reverts if pool is not initialized in the rewarder
      *
      *  @custom:error ShuttleNotInitialized
      */
-    error PillarsOfCreation__ShuttleNotInitialized(uint256 shuttleId, address borrowable);
+    error PillarsOfCreation__ShuttleNotInitialized();
 
     /**
      *  @dev Reverts if borrowable is already initialized
      *
-     *  @param shuttleId The ID of this lending pool
-     *  @param borrowable The address of the CygnusBorrow contract
-     *
-     *  @custom:error ShuttleAlreadyInitialized
+     *  @custom:error BorrowableAlreadyInitialized
      */
-    error PillarsOfCreation__ShuttleAlreadyInitialized(uint256 shuttleId, address borrowable);
+    error PillarsOfCreation__BorrowableAlreadyInitialized();
+
+    /**
+     *  @dev Reverts if collateral is already initialized
+     *
+     *  @custom:error CollateralAlreadyInitialized
+     */
+    error PillarsOfCreation__CollateralAlreadyInitialized();
 
     /**
      *  @dev Reverts when trying to sweep the underlying asset from this contract
@@ -102,40 +100,32 @@ interface IPillarsOfCreation {
      */
     event NewCygPerBlock(uint256 lastRewardRate, uint256 newRewardRate);
 
-    /**
-     *  @dev Logs when we add a new lending pool to the rewarder
-     *
-     *  @param shuttleId The `shuttleId` of the borrowable
-     *  @param borrowable The address of the CygnusBorrow contract
-     *  @param allocPoints The alloc points
-     *
-     *  @custom:event NewShuttleReward
-     */
-    event NewShuttleReward(uint256 indexed shuttleId, address indexed borrowable, uint256 allocPoints);
+    event NewBorrowableReward(address borrowable, uint256 totalAlloc, uint256 alloc);
 
     /**
      *  @dev Logs when a lending pool is updated
      *
      *  @param borrowable Address of the CygnusBorrow contract
+     *  @param sender The msg.sender
      *  @param lastRewardTime The last reward time for this pool
-     *  @param totalShares The pool's total shares
-     *  @param accRewardPerShare The accumulated reward per share based on the reward distributed
+     *  @param epoch The current epoch
      *
      *  @custom:event UpdateShuttle
      */
-    event UpdateShuttle(address indexed borrowable, uint256 lastRewardTime, uint256 totalShares, uint256 accRewardPerShare);
+    event UpdateShuttle(address indexed borrowable, address sender, uint256 lastRewardTime, uint256 epoch);
 
     /**
-     *  @notice Legs when `sender` harvests and receives CYG
+     *  @notice Logs when `sender` harvests and receives CYG
      *
      *  @param borrowable Address of the CygnusBorrow contract
-     *  @param epoch The current epoch
-     *  @param sender msg.sender
-     *  @param reward CYG reward collected
+     *  @param receiver The receiver of the CYG rewards
+     *  @param reward CYG reward collected amount
      *
-     *  @custom:event CollectReward
+     *  @custom:event CollectCYG
      */
-    event CollectReward(address indexed borrowable, uint256 indexed epoch, address sender, uint256 reward);
+    event Collect(address indexed borrowable, address indexed collateral, address receiver, uint256 reward);
+
+    event CollectAll(uint256 totalPools, uint256 reward);
 
     /**
      *  @dev Logs when the complex rewarder tracks a lender or a borrower
@@ -143,12 +133,10 @@ interface IPillarsOfCreation {
      *  @param borrowable The address of the borrowable asset.
      *  @param account The address of the lender or borrower
      *  @param balance The updated balance of the account
-     *  @param adjustmentFactor The updated borrow index of the borrowable asset or 1e18 for lenders
-     *  @param position Whether the account has a borrow or lend position
      *
      *  @custom:event TrackShuttle
      */
-    event TrackRewards(address indexed borrowable, address indexed account, uint256 balance, uint256 adjustmentFactor, Position position);
+    event TrackRewards(address indexed borrowable, address indexed account, uint256 balance, address collateral);
 
     /**
      *  @dev Emitted when the contract self-destructs (can only self-destruct after the death unix timestamp)
@@ -189,14 +177,14 @@ interface IPillarsOfCreation {
     /**
      *  @dev Logs when the allocation point of a borrowable asset in a Shuttle pool is updated.
      *
-     *  @param shuttleId The ID of the Shuttle pool where the allocation point was updated.
      *  @param borrowable The address of the borrowable asset whose allocation point was updated.
+     *  @param collateral The address of the collateral asset whose allocation point was updated.
      *  @param oldAllocPoint The old allocation point of the borrowable asset in the Shuttle pool.
      *  @param newAllocPoint The new allocation point of the borrowable asset in the Shuttle pool.
      *
      *  @custom:event NewShuttleAllocPoint
      */
-    event NewShuttleAllocPoint(uint256 indexed shuttleId, address borrowable, uint256 oldAllocPoint, uint256 newAllocPoint);
+    event NewShuttleAllocPoint(address borrowable, address collateral, uint256 oldAllocPoint, uint256 newAllocPoint);
 
     /**
      *  @dev Logs when the allocation point of a borrowable asset in a Shuttle pool is updated.
@@ -220,6 +208,13 @@ interface IPillarsOfCreation {
      */
     event AccelerateTheUniverse(uint256 shuttlesLength, address sender, uint256 epoch);
 
+    /**
+     *  @dev Logs when the doom switch is enabled by admin, cannot be turned off
+     */
+    event DoomSwitchSet(uint256 time, address sender, bool doomswitch);
+
+    event CygnusDAODrip(address receiver, uint256 amount);
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             3. CONSTANT FUNCTIONS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -237,9 +232,7 @@ interface IPillarsOfCreation {
     /**
      *  @notice Mapping to keep track of PoolInfo for each borrowable asset
      *  @param borrowable The address of the Cygnus Borrow contract
-     *  @param position 0 for borrower, 1 for lender
      *  @return active Whether the pool has been initialized or not (can only be set once)
-     *  @return shuttleId The ID for this shuttle to identify in hangar18
      *  @return totalShares The total number of shares held in the pool
      *  @return accRewardPerShare The accumulated reward per share of the pool
      *  @return lastRewardTime The timestamp of the last reward distribution
@@ -248,18 +241,17 @@ interface IPillarsOfCreation {
      */
     function getShuttleInfo(
         address borrowable,
-        Position position
-    ) external view returns (bool, uint256, uint256, uint256, uint256, uint256, address);
+        address collateral
+    ) external view returns (bool, address, address, uint256, uint256, uint256, uint256, address);
 
     /**
      *  @notice Mapping to keep track of UserInfo for each user's deposit and borrow activity
      *  @param borrowable The address of the borrowable contract.
-     *  @param position The borrower or lender pool (0 for borrowers, 1 for lenders)
      *  @param user The address of the user to check rewards for.
      *  @return shares The number of shares held by the user
      *  @return rewardDebt The amount of reward debt the user has accrued
      */
-    function getUserInfo(address borrowable, Position position, address user) external view returns (uint256, int256);
+    function getUserInfo(address borrowable, address collateral, address user) external view returns (uint256, int256);
 
     /**
      *  @notice Mapping to keep track of EpochInfo for each epoch
@@ -281,24 +273,9 @@ interface IPillarsOfCreation {
     function shuttlesLength() external view returns (uint256);
 
     /**
-     *  @return ACC_PRECISION Constant used for precision calculations
+     *  @return SECONDS_PER_YEAR Constant variable representing the number of seconds in a year
      */
-    function ACC_PRECISION() external pure returns (uint256);
-
-    /**
-     *  @return SHARES_PRECISION is a constant used for precision calculations
-     */
-    function SHARES_PRECISION() external pure returns (uint256);
-
-    /**
-     *  @return MAX_CYG_PER_BLOCK The maximum amount of CYG per block this contract can give to users
-     */
-    function MAX_CYG_PER_BLOCK() external pure returns (uint256);
-
-    /**
-     *  @return BLOCKS_PER_YEAR Constant variable representing the number of blocks in a year
-     */
-    function BLOCKS_PER_YEAR() external pure returns (uint256);
+    function SECONDS_PER_YEAR() external pure returns (uint256);
 
     /**
      *  @return Constant variable representing the duration of the contract in seconds
@@ -318,7 +295,7 @@ interface IPillarsOfCreation {
     /**
      *  @return Human readable name for this rewarder
      */
-    function name() external pure returns (string memory);
+    function name() external view returns (string memory);
 
     /**
      *  @return Version of the rewarder
@@ -351,11 +328,6 @@ interface IPillarsOfCreation {
     function cygToken() external view returns (address);
 
     /**
-     *  @return cygPerBlock The amount of CYG this contract gives out to per block
-     */
-    function cygPerBlock() external view returns (uint256);
-
-    /**
      *  @return totalAllocPoint Total allocation points across all pools
      */
     function totalAllocPoint() external view returns (uint256);
@@ -364,11 +336,6 @@ interface IPillarsOfCreation {
      *  @return lastEpochTime The timestamp of the end of the last epoch.
      */
     function lastEpochTime() external view returns (uint256);
-
-    /**
-     *  @return totalCygRewards The total amount of CYG tokens to be distributed by the end of this contract's lifetime.
-     */
-    function totalCygRewards() external view returns (uint256);
 
     /**
      *  @return totalCygClaimed Total rewards given out by this contract up to this point.
@@ -413,67 +380,36 @@ interface IPillarsOfCreation {
      *  @dev Returns the amount of CYG tokens that are pending to be claimed by the user.
      *
      *  @param borrowable The address of the Cygnus borrow contract.
-     *  @param position Whether the user is lending or borrowing
      *  @param _user The address of the user.
      *  @return The amount of CYG tokens pending to be claimed by `_user`.
      */
-    function pendingCyg(address borrowable, Position position, address _user) external view returns (uint256);
+    function pendingCyg(address borrowable, address collateral, address _user) external view returns (uint256);
+
+    /**
+     *  @dev Returns the amount of CYG tokens that are pending to be claimed by the DAO
+     */
+    function pendingCygDAO() external view returns (uint256);
 
     /**
      *  @dev Get the time in seconds until this contract self-destructs
      */
-    function blocksUntilSupernova() external view returns (uint256);
-
-    /**
-     *  @dev Array of all pools earning rewards
-     */
-    function allShuttles(uint256) external view returns (address);
+    function untilSupernova() external view returns (uint256);
 
     /**
      *  @dev Calculates the amount of CYG tokens that should be emitted per block for a given epoch.
      *  @param epoch The epoch for which to calculate the emissions rate.
+     *  @param totalRewards The total amount of rewards distributed by the end of total epochs
      *  @return The amount of CYG tokens to be emitted per block.
      */
-    function calculateCygPerBlock(uint256 epoch) external view returns (uint256);
+    function calculateCygPerBlock(uint256 epoch, uint256 totalRewards) external view returns (uint256);
 
     /**
      *  @dev Calculates the total amount of CYG tokens that should be emitted during a given epoch.
      *  @param epoch The epoch for which to calculate the total emissions.
+     *  @param totalRewards The total rewards given out by the end of the total epochs.
      *  @return The total amount of CYG tokens to be emitted during the epoch.
      */
-    function calculateEpochRewards(uint256 epoch) external view returns (uint256);
-
-    // Simple view functions
-
-    /**
-     * @return epochProgression The current epoch progression.
-     */
-    function epochProgression() external view returns (uint256);
-
-    /**
-     * @return totalProgression The total contract progression.
-     */
-    function totalProgression() external view returns (uint256);
-
-    /**
-     * @return blocksThisEpoch The distance travelled in blocks this epoch.
-     */
-    function blocksThisEpoch() external view returns (uint256);
-
-    /**
-     *  @return timeUntilNextEpoch The time left until the next epoch starts.
-     */
-    function blocksUntilNextEpoch() external view returns (uint256);
-
-    /**
-     *  @return epochRewardsPacing The pacing of rewards for the current epoch as a percentage
-     */
-    function epochRewardsPacing() external view returns (uint256);
-
-    /**
-     *  @return borrowRewardsWeight The percentage of total CYG rewards that goes to borrowers, the rest being given to lenders
-     */
-    function borrowRewardsWeight() external view returns (uint256);
+    function calculateEpochRewards(uint256 epoch, uint256 totalRewards) external view returns (uint256);
 
     /**
      *  @return doomSwitch Whether the doom which is enabled or not
@@ -485,6 +421,125 @@ interface IPillarsOfCreation {
      */
     function daoReserves() external view returns (address);
 
+    /**
+     *  @return totalCygRewards The total amount of CYG tokens to be distributed to borrowers and lenders by the end of this contract's lifetime.
+     */
+    function totalCygRewards() external view returns (uint256);
+
+    /**
+     *  @return totalCygDAO The total amount of CYG to be distributed to the DAO by the end of this contract's lifetime
+     */
+    function totalCygDAO() external view returns (uint256);
+
+    /**
+     *  @return cygPerBlockRewards The amount of CYG this contract gives out to per block
+     */
+    function cygPerBlockRewards() external view returns (uint256);
+
+    /**
+     *  @return cygPerBlockDAO The current cygPerBlock for the dao
+     */
+    function cygPerBlockDAO() external view returns (uint256);
+
+    /**
+     *  @return lastDripDAO The timestamp of last DAO drip
+     */
+    function lastDripDAO() external view returns (uint256);
+
+    /**
+     *  @return artificer The address of the artificer, capable of manipulation individual pool rewards
+     */
+    function artificer() external view returns (address);
+
+    /**
+     *  @return Whether or not the artificer is enabled
+     */
+    function artificerEnabled() external view returns (bool);
+
+    // Simple view functions
+
+    /**
+     * @return epochProgression The current epoch progression.
+     */
+    function epochProgression() external view returns (uint256);
+
+    /**
+     * @return blocksThisEpoch The distance travelled in blocks this epoch.
+     */
+    function blocksThisEpoch() external view returns (uint256);
+
+    /**
+     *  @return epochRewardsPacing The pacing of rewards for the current epoch as a percentage
+     */
+    function epochRewardsPacing() external view returns (uint256);
+
+    /**
+     *  @return timeUntilNextEpoch The time left until the next epoch starts.
+     */
+    function untilNextEpoch() external view returns (uint256);
+
+    /**
+     * @return totalProgression The total contract progression.
+     */
+    function totalProgression() external view returns (uint256);
+
+    /**
+     *  @return daysUntilNextEpoch Days until this epoch ends and the next epoch begins
+     */
+    function daysUntilNextEpoch() external view returns (uint256);
+
+    /**
+     *  @return daysUntilSupernova The amount of days until this contract self-destructs
+     */
+    function daysUntilSupernova() external view returns (uint256);
+
+    /**
+     *  @return daysPassedThisEpoch How many days have passed since the star tof this epoch
+     */
+    function daysPassedThisEpoch() external view returns (uint256);
+
+    /**
+     *  @dev Uses the library's `timestampToDateTime` function to avoid repeating ourselves
+     */ // prettier-ignore
+    function timestampToDateTime(uint256 timestamp) external pure returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
+
+    /**
+     *  @dev Uses the library's `diffDays` function to avoid repeating ourselves
+     */ // prettier-ignore
+    function diffDays(uint256 fromTimestamp, uint256 toTimestamp) external pure returns (uint256 result);
+
+    /**
+     *  @dev Returns the datetime that this contract self destructs
+     */ // prettier-ignore
+    function dateSupernova() external view returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
+
+    /**
+     *  @dev Returns the datetime this epoch ends and next epoch begins
+     */ // prettier-ignore
+    function dateNextEpochStart() external view returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
+
+    /**
+     *  @dev  Returns the datetime the current epoch started
+     */ // prettier-ignore
+    function dateCurrentEpochStart() external view returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
+
+    /**
+     *  @dev Returns the datetime the last epoch started
+     */ // prettier-ignore
+    function dateLastEpochStart() external view returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
+
+    /**
+     *  @dev Returns the datetime that `epoch` started
+     *  @param epoch The epoch number to get the date time of
+     */ // prettier-ignore
+    function dateEpochStart( uint256 epoch) external view returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
+
+    /**
+     *  @dev Returns the datetime that `epoch` ends
+     *  @param epoch The epoch number to get the date time of
+     */ // prettier-ignore
+    function dateEpochEnd( uint256 epoch) external view returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             4. NON-CONSTANT FUNCTIONS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -494,7 +549,6 @@ interface IPillarsOfCreation {
      *  it to the specified recipient address.
      *
      *  @param borrowable Address of the borrowable contract for which to harvest rewards.
-     *  @param position Collect lending or borrowing position (0 for lending, 1 for borrowing)
      *  @param to Address to which to transfer the harvested rewards.
      *
      *  Effects:
@@ -505,7 +559,7 @@ interface IPillarsOfCreation {
      *
      *  @custom:security non-reentrant
      */
-    function collect(address borrowable, Position position, address to) external;
+    function collect(address borrowable, address collateral, address to) external returns (uint256 cygAmount);
 
     /**
      *  @dev Harvests the accumulated reward for the specified user from all initialized borrowables;
@@ -520,21 +574,19 @@ interface IPillarsOfCreation {
      *
      *  @custom:security non-reentrant
      */
-    function collectAll(Position position, address to) external;
+    function collectAll(address to) external returns (uint256 cygAmount);
 
     /**
      *  @dev Tracks rewards for lenders and borrowers.
      *
      *  @param account The address of the lender or borrower
      *  @param balance The updated balance of the account
-     *  @param adjustmentFactor The updated borrow index of the borrowable asset or 1e18 for lenders
-     *  @param position Whether the account has a borrow or lend position
      *
      *  Effects:
      *  - Updates the shares and reward debt of the borrower in the borrowable asset's pool.
      *  - Updates the total shares of the borrowable asset's pool.
      */
-    function trackRewards(address account, uint256 balance, uint256 adjustmentFactor, Position position) external;
+    function trackRewards(address account, uint256 balance, address collateral) external;
 
     /**
      *  @dev Updates all the pool rewards, callable by anyone
@@ -554,7 +606,7 @@ interface IPillarsOfCreation {
      *
      *  @custom:security non-reentrant only-eoa
      */
-    function updateShuttle(address borrowable) external;
+    function updateShuttle(address borrowable, address collateral) external;
 
     /**
      *  @dev Destroys the contract and transfers remaining funds to the owner. Can only be called after 4 years from deployment.
@@ -567,28 +619,34 @@ interface IPillarsOfCreation {
 
     /**
      *  @notice Admin 👽
-     *  @notice Initializes lending pool in the rewarder
+     *  @notice Initializes station in the rewarder
      *
-     *  @dev Sets the allocation point for a specific shuttle. The allocation point determines the proportion of rewards that
-     *       will be distributed to this shuttle's pool relative to the others. Only hangar Admin can call this function.
-     *
-     *  @param shuttleId ID of the shuttle to set the allocation point for.
+     *  @param borrowable The address of the borrowable.
      *  @param allocPoint New allocation point for the shuttle.
      *
      *  @custom:security non-reentrant only-admin
      */
-    function initializeShuttleRewards(uint256 shuttleId, uint256 allocPoint) external;
+    function setLendingRewards(address borrowable, uint256 allocPoint) external;
+
+    /**
+     *  @notice Admin 👽
+     *  @notice Initializes collateral in the rewarder
+     *
+     *  @param borrowable The address of the collateral.
+     *  @param collateral The address of the collateral.
+     *  @param allocPoint New allocation point for the shuttle.
+     *
+     *  @custom:security non-reentrant only-admin
+     */
+    function setBorrowRewards(address borrowable, address collateral, uint256 allocPoint) external;
 
     /**
      *  @notice Admin 👽
      *  @notice This function is used to adjust the amount of CYG rewards that are distributed to each shuttle
      *
-     *  @param shuttleId The ID of the shuttle to adjust the allocation points for.
-     *  @param allocPoint The new allocation points for the shuttle.
-     *
      *  @custom:security non-reentrant only-admin
      */
-    function adjustShuttleRewards(uint256 shuttleId, uint256 allocPoint) external;
+    function adjustRewards(address borrowable, address collateral, uint256 allocPoint) external;
 
     /**
      *  @notice Admin 👽
@@ -598,26 +656,6 @@ interface IPillarsOfCreation {
      *  @custom:security only-admin
      */
     function setBonusRewarder(uint256 shuttleId, address bonusRewarder) external;
-
-    /**
-     *  @notice Admin 👽
-     *  @notice Updates the `cygPerBlock`
-     *
-     *  @param _cygPerBlock The new `cygPerBLock`
-     *
-     *  @custom:security non-reentrant only-admin
-     */
-    function setCygPerBlock(uint256 _cygPerBlock) external;
-
-    /**
-     *  @notice Admin 👽
-     *  @notice Updates the `borrowerRewardWeight`
-     *
-     *  @param _newRewardWeight The new reward weight given to the borrowers
-     *
-     *  @custom:security non-reentrant only-admin
-     */
-    function setRewardWeights(uint256 _newRewardWeight) external;
 
     /**
      *  @notice Admin 👽
@@ -636,4 +674,11 @@ interface IPillarsOfCreation {
      *
      */
     function setDoomSwitch() external;
+
+    /**
+     *  @notice Mints Cyg to the DAO according to the `cygPerBlockDAO`
+     */
+    function dripCygDAO() external;
+
+    function setArtificer(address _artificer) external;
 }
