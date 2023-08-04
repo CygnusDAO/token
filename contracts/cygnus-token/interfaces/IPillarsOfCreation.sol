@@ -2,6 +2,7 @@
 pragma solidity >=0.8.17;
 
 import {IHangar18} from "./core/IHangar18.sol";
+import {IBonusRewarder} from "./IBonusRewarder.sol";
 
 /**
  *  @notice Interface to interact with CYG rewards
@@ -17,6 +18,13 @@ interface IPillarsOfCreation {
      *  @custom:error CygPerBlockExceedsLimit
      */
     error PillarsOfCreation__CygPerBlockExceedsLimit();
+
+    /**
+     *  @dev Reverts if initializing pillars again
+     *
+     *  @custom:error PillarsAlreadyInitialized
+     */
+    error PillarsOfCreation__PillarsAlreadyInitialized();
 
     /**
      *  @dev Reverts when attempting to call Admin-only functions
@@ -86,6 +94,14 @@ interface IPillarsOfCreation {
      */
     error PillarsOfCreation__InvalidTotalWeight();
 
+    /**
+     *  @dev Reverts when the artificer contract is enabled and the msg sender is not artificer
+     *  @notice Mainly used to set/update rewards
+     *
+     *  @custom:error OnlyArtificer
+     */
+    error PillarsOfCreation__OnlyArtificer();
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             2. CUSTOM EVENTS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -100,7 +116,21 @@ interface IPillarsOfCreation {
      */
     event NewCygPerBlock(uint256 lastRewardRate, uint256 newRewardRate);
 
-    event NewBorrowableReward(address borrowable, uint256 totalAlloc, uint256 alloc);
+    /**
+     *  @dev Logs when a new borrowable is set
+     */
+    event NewBorrowableReward(address borrowable, address collateral, uint256 totalAlloc, uint256 alloc);
+
+    /**
+     *  @dev Logs when a new collateral is set
+     */
+    event NewCollateralReward(address borrowable, address collateral, uint256 totalAlloc, uint256 alloc);
+
+
+    /**
+     *  @dev Logs when a bonus rewarder is set for a shuttle
+     */
+    event NewBonusRewarder(address borrowable, address collateral, IBonusRewarder bonusRewarder);
 
     /**
      *  @dev Logs when a lending pool is updated
@@ -213,21 +243,14 @@ interface IPillarsOfCreation {
      */
     event DoomSwitchSet(uint256 time, address sender, bool doomswitch);
 
+    /**
+     *  @dev Logs when CYG is dripped to the DAO reserves
+     */
     event CygnusDAODrip(address receiver, uint256 amount);
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             3. CONSTANT FUNCTIONS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
-
-    /**
-     *  @custom:enum Position Lending or Borrowing shuttle
-     *  @custom:member LENDER Pass 0 to claim from lender pools
-     *  @custom:memebr BROROWER Pass 1 to claim from borrower pools
-     */
-    enum Position {
-        LENDER,
-        BORROWER
-    }
 
     /**
      *  @notice Mapping to keep track of PoolInfo for each borrowable asset
@@ -238,11 +261,12 @@ interface IPillarsOfCreation {
      *  @return lastRewardTime The timestamp of the last reward distribution
      *  @return allocPoint The allocation points of the pool
      *  @return bonusRewarder The rewarder contract to receive bonus token rewards apart from CYG
+     *  @return shuttleId The ID of the lending pool (shared by borrowable/collateral)
      */
     function getShuttleInfo(
         address borrowable,
         address collateral
-    ) external view returns (bool, address, address, uint256, uint256, uint256, uint256, address);
+    ) external view returns (bool, address, address, uint256, uint256, uint256, uint256, IBonusRewarder, uint256);
 
     /**
      *  @notice Mapping to keep track of UserInfo for each user's deposit and borrow activity
@@ -380,10 +404,20 @@ interface IPillarsOfCreation {
      *  @dev Returns the amount of CYG tokens that are pending to be claimed by the user.
      *
      *  @param borrowable The address of the Cygnus borrow contract.
+     *  @param collateral The address of the Cygnus collateral contract.
      *  @param _user The address of the user.
      *  @return The amount of CYG tokens pending to be claimed by `_user`.
      */
     function pendingCyg(address borrowable, address collateral, address _user) external view returns (uint256);
+
+    /**
+     *  @dev Returns bonus rewards for a user
+     *
+     *  @param borrowable The address of the borrowable
+     *  @param collateral The address of the collateral
+     *  @param _user The address of the user
+     */
+    function pendingBonusReward(address borrowable, address collateral, address _user) external view returns (address, uint256);
 
     /**
      *  @dev Returns the amount of CYG tokens that are pending to be claimed by the DAO
@@ -619,7 +653,7 @@ interface IPillarsOfCreation {
 
     /**
      *  @notice Admin 👽
-     *  @notice Initializes station in the rewarder
+     *  @notice Initializes borrowable in the rewarder
      *
      *  @param borrowable The address of the borrowable.
      *  @param allocPoint New allocation point for the shuttle.
@@ -651,11 +685,12 @@ interface IPillarsOfCreation {
     /**
      *  @notice Admin 👽
      *  @notice Sets a bonus rewarder to reward borrowers in a bonsu token (this is only applicable for borrowers)
-     *  @param shuttleId The lending pool ID
-     *  @param bonusRewarder The address of the bonus rewarder
+     *  @param borrowable The address of the borrowable
+     *  @param collateral The address of the collateral
+     *  @param bonusRewarder The address of the bonus rewarder to reward users in another token other than CYG
      *  @custom:security only-admin
      */
-    function setBonusRewarder(uint256 shuttleId, address bonusRewarder) external;
+    function setBonusRewarder(address borrowable, address collateral, IBonusRewarder bonusRewarder) external;
 
     /**
      *  @notice Admin 👽
@@ -680,5 +715,13 @@ interface IPillarsOfCreation {
      */
     function dripCygDAO() external;
 
+    /**
+     *  @notice Sets the artificer, capable of adjusting rewards
+     */
     function setArtificer(address _artificer) external;
+
+    /**
+     *  @notice Initializes the contract
+     */
+    function initializePillars() external;
 }

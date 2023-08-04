@@ -44,9 +44,9 @@ import {ReentrancyGuard} from "./utils/ReentrancyGuard.sol";
 import {SafeTransferLib} from "./libraries/SafeTransferLib.sol";
 import {FixedPointMathLib} from "./libraries/FixedPointMathLib.sol";
 import {DateTimeLib} from "./libraries/DateTimeLib.sol";
-import {LibString} from "./libraries/LibString.sol";
 
 // Interfaces
+import {IBonusRewarder} from "./interfaces/IBonusRewarder.sol";
 import {IHangar18} from "./interfaces/core/IHangar18.sol";
 import {IERC20} from "./interfaces/core/IERC20.sol";
 import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
@@ -63,24 +63,22 @@ import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
  *
  *          cygPerBlockAtEpochN = (totalRewards - accumulatedRewards) * reductionFactor / emissionsCurve(epochN)
  *
- *                   1.6M |_______.
- *                        |       |
- *                   1.4M |       |
- *                        |       |                   Example with 3M totalRewards, 5% reduction and 48 epochs
- *                   1.2M |       |
+ *                   700k |
+ *                        |                        Example with 1.75M totalRewards, 2.5% reduction and 42 epochs
+ *                   600k |_______.
  *                        |       |                                Epochs    |    Rewards
- *                     1M |       |                             -------------|---------------
- *                        |       |                               00 - 11    | 1,583,165.28
- *          rewards  800k |       |_______.                       12 - 23    |   802,985.97
- *                        |       |       |                       24 - 35    |   407,276.79
- *                   600k |       |       |                       36 - 47    |   206,571.96
- *                        |       |       |                                  | 3,000,000.00
- *                   400k |       |       |_______.
- *                        |       |       |       |
- *                   200k |       |       |       |_______.
+ *                   500M |       |                             -------------|---------------
+ *                        |       |_______.                       00 - 10    |   597,864.47
+ *          rewards  400k |       |       |                       11 - 20    |   461,139.90
+ *                        |       |       |_______.               21 - 30    |   360,325.55
+ *                   300k |       |       |       |_______.       31 - 42    |   327,670.07
+ *                        |       |       |       |       |                  | 1,750,000.00
+ *                   200k |       |       |       |       |
  *                        |       |       |       |       |
- *                        |_______|_______|_______|_______|_
- *                          00-11   12-23   24-35  36-47
+ *                   100k |       |       |       |       |
+ *                        |       |       |       |       |
+ *                        |_______|_______|_______|_______|__
+ *                          00-10   11-20   21-30   31-42
  *                                     epochs
  *
  *          On any interaction the `advance` function is called to check if we can advance to a new epoch. The contract
@@ -145,7 +143,8 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         uint256 accRewardPerShare;
         uint256 lastRewardTime;
         uint256 allocPoint;
-        address bonusRewarder;
+        IBonusRewarder bonusRewarder;
+        uint256 shuttleId;
     }
 
     /**
@@ -168,12 +167,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      */
     uint256 private constant MAX_CYG_PER_BLOCK = 0.475e18; // Only used in constructor
 
-    /*  ─────────────────────────────────────────────── Public ────────────────────────────────────────────────  */
-
     /**
      *  @notice Total pools receiving CYG rewards
      */
-    ShuttleInfo[] public allShuttles;
+    ShuttleInfo[] private allShuttles;
+
+    /*  ─────────────────────────────────────────────── Public ────────────────────────────────────────────────  */
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -194,7 +193,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    string public override name = string.concat("Cygnus: Pillars of Creation #", LibString.toString(block.chainid));
+    string public override name = "Cygnus: Pillars of Creation";
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -236,16 +235,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public immutable override birth;
-
-    /**
-     *  @inheritdoc IPillarsOfCreation
-     */
-    uint256 public immutable override death;
-
-    /**
-     *  @inheritdoc IPillarsOfCreation
-     */
     address public immutable override cygToken;
 
     /**
@@ -264,6 +253,18 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     address public immutable override daoReserves;
 
     // Current settings
+
+    /**
+     *  @notice Can only be set once via the `initializePillars` function
+     *  @inheritdoc IPillarsOfCreation
+     */
+    uint256 public override birth;
+
+    /**
+     *  @notice Can only be set once via the `initializePillars` function
+     *  @inheritdoc IPillarsOfCreation
+     */
+    uint256 public override death;
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -316,21 +317,8 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Total CYG to be distributed as rewards to lenders/borrowers
         totalCygRewards = _totalCygRewardsBorrows;
 
-        // Calculate the cygPerBlock at epoch 0 for rewards
-        cygPerBlockRewards = calculateCygPerBlock(0, _totalCygRewardsBorrows);
-
         // Total CYG to go to the DAO
         totalCygDAO = _totalCygRewardsDAO;
-
-        // Calculate the cygPerBlock for the DAO
-        cygPerBlockDAO = calculateCygPerBlock(0, _totalCygRewardsDAO);
-
-        /// @custom:error CygPerBlockExceedsLimit Avoid setting above limit
-        if (cygPerBlockRewards > MAX_CYG_PER_BLOCK || cygPerBlockDAO > MAX_CYG_PER_BLOCK)
-            revert PillarsOfCreation__CygPerBlockExceedsLimit();
-
-        // Current timestamp
-        uint256 _birth = block.timestamp;
 
         // Set CYG token
         cygToken = _rewardToken;
@@ -338,33 +326,8 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Set factory
         hangar18 = _hangar18;
 
-        // Start epoch
-        lastEpochTime = _birth;
-
-        // Timestamp of deployment
-        birth = _birth;
-
-        // Timestamp of when the contract self-destructs
-        death = _birth + DURATION;
-
-        // Store the last drip as deployment time
-        lastDripDAO = _birth;
-
         // The DAO's latest reserves address from the factory
         daoReserves = _hangar18.daoReserves();
-
-        // Store epoch
-        getEpochInfo[0] = EpochInfo({
-            epoch: 0,
-            start: _birth,
-            end: _birth + BLOCKS_PER_EPOCH,
-            cygPerBlock: cygPerBlockRewards,
-            totalRewards: cygPerBlockRewards * BLOCKS_PER_EPOCH,
-            totalClaimed: 0
-        });
-
-        /// @custom:event NewEpoch
-        emit NewEpoch(0, 0, 0, cygPerBlockRewards);
     }
 
     /**
@@ -385,7 +348,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @custom:modifier cygnusAdmin Controls important parameters in both Collateral and Borrow contracts 👽
      */
     modifier cygnusAdmin() {
-        checkAdmin();
+        _checkAdmin();
         _;
     }
 
@@ -393,7 +356,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @custom:modifier onlyEOA Modifier that allows function call only if msg.sender == tx.origin
      */
     modifier onlyEOA() {
-        checkEOA();
+        _checkEOA();
         _;
     }
 
@@ -417,7 +380,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @notice Internal check for msg.sender admin, checks factory's current admin 👽
      */
-    function checkAdmin() private view {
+    function _checkAdmin() private view {
         // Current admin from the factory
         address admin = hangar18.admin();
 
@@ -428,9 +391,17 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     }
 
     /**
+     *  @notice Reverts if msg.sender is not artificer
+     */
+    function _checkArtificer() private view {
+        /// @custom;erro OnlyArtificer
+        if (msg.sender != artificer) revert PillarsOfCreation__OnlyArtificer();
+    }
+
+    /**
      *  @notice Reverts if it is not considered an EOA
      */
-    function checkEOA() private view {
+    function _checkEOA() private view {
         /// @custom:error OnlyEOAAllowed Avoid if not called by an externally owned account
         // solhint-disable-next-line
         if (msg.sender != tx.origin) {
@@ -529,6 +500,14 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
 
     /**
+     *  @notice Get the shuttle by ID (not the same as hangar18 `allShuttles`)
+     */
+    function getShuttleById(uint256 shuttleId) external view returns (ShuttleInfo memory shuttle) {
+        shuttle = allShuttles[shuttleId];
+        return getShuttleInfo[shuttle.borrowable][shuttle.collateral];
+    }
+
+    /**
      *  @inheritdoc IPillarsOfCreation
      */
     function pendingCygDAO() external view override returns (uint256 pending) {
@@ -572,6 +551,21 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Calculate the pending reward for the user, based on their shares and the accumulated reward per share
         pending = uint256(int256((user.shares * accRewardPerShare) / ACC_PRECISION) - (user.rewardDebt));
+    }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     */
+    function pendingBonusReward(
+        address borrowable,
+        address collateral,
+        address user
+    ) external view override returns (address token, uint256 amount) {
+        // Load pool to memory
+        ShuttleInfo memory shuttle = getShuttleInfo[borrowable][collateral];
+
+        // Return bonus rewards if any
+        return shuttle.bonusRewarder.pendingReward(borrowable, collateral, user);
     }
 
     /**
@@ -898,6 +892,9 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
                 // Store the planned rewards for this epoch (same as `currentEpochRewards()`)
                 epoch.totalRewards = cygPerBlockRewards * BLOCKS_PER_EPOCH;
 
+                // Assurance
+                epoch.totalClaimed = 0;
+
                 // Store the new cyg per block for the dao
                 cygPerBlockDAO = calculateCygPerBlock(currentEpoch, totalCygDAO);
 
@@ -1022,6 +1019,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
             // Update the user's reward debt to reflect the current accumulated reward.
             user.rewardDebt = accumulatedReward;
+
+            // Check for bonus rewards
+            if (address(shuttle.bonusRewarder) != address(0)) {
+                // Bonus rewarder is set, harvest
+                shuttle.bonusRewarder.onReward(borrowable, collateral, msg.sender, to, cygAmount, user.shares);
+            }
         }
 
         // Get current epoch
@@ -1037,6 +1040,9 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         IERC20(cygToken).mint(to, cygAmount);
     }
 
+    /**
+     *  @notice Drips CYG to the DAO reserves given the `cygPerBlockDAO` and time elapsed
+     */
     function dripCygDAOPrivate() private {
         // Calculate time since last dao claim
         uint256 currentTime = block.timestamp;
@@ -1057,8 +1063,19 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         emit CygnusDAODrip(daoReserves, _pendingCygDAO);
     }
 
+    /**
+     *  @dev This contract tracks borrowers` USD loans and lenders` USD deposits. When a lender deposits in a
+     *       borrowable contract, they receive CygUSD at the given exchange rate. When the CygUSD is minted, the
+     *       `_afterTokenTransfer` hook will call this contract, if it is set, and pass the lender's account and
+     *        amount of CygUSD minted. We query the current exchange rate on this contract to correctly assign the
+     *        USD deposited value of the lender.
+     *  @notice Get the CygUSD to USD exchange rate to adjust borrowable rewards
+     */
     function cygUsdExchangeRate(address borrowable) private view returns (uint256) {
+        // Current exchange rate
         uint256 er = ICygnusTerminal(borrowable).exchangeRate();
+
+        // Exchange rate can never be 0
         return er == 0 ? 1e18 : er;
     }
 
@@ -1077,7 +1094,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         cygAmount = collectPrivate(borrowable, collateral, to);
 
         /// @custom:event Collect
-        emit Collect(borrowable, collateral, msg.sender, cygAmount);
+        emit Collect(borrowable, collateral, to, cygAmount);
     }
 
     /**
@@ -1112,8 +1129,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Interactions
         address borrowable = msg.sender;
 
-        // Update the pool information for the borrowable asset
-        // Load to storage for gas savings, not updating
+        // Update and load to storage for gas savings
         ShuttleInfo storage shuttle = updateShuttlePrivate(borrowable, collateral);
 
         // Get the user information for the borrower in the borrowable asset's pool
@@ -1136,6 +1152,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Update the total shares of the pool of `borrowable` and `position`
         shuttle.totalShares = uint256(int256(shuttle.totalShares) + diffShares);
+
+        // Check if bonus rewarder is set
+        if (address(shuttle.bonusRewarder) != address(0)) {
+            // Assign shares for user to receive bonus rewards
+            shuttle.bonusRewarder.onReward(borrowable, collateral, account, account, 0, newShares);
+        }
 
         /// @custom:event TrackShuttle
         emit TrackRewards(borrowable, account, balance, collateral);
@@ -1183,11 +1205,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @custom:security only-admin 👽
      */
     function adjustRewards(address borrowable, address collateral, uint256 allocPoint) external override advance {
+        // Check if artificer is enabled, reverts if msg.sender is not artificer
         if (artificerEnabled()) {
-            require(msg.sender == artificer, "Wrong Caller");
+            _checkArtificer();
         }
-        // Artificer not enabled, if caller is not admin then revert
-        else checkAdmin();
+        // Artificer not enabled, if caller is admin
+        else _checkAdmin();
 
         // Load lender rewards
         ShuttleInfo storage shuttle = getShuttleInfo[borrowable][collateral];
@@ -1212,12 +1235,19 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @inheritdoc IPillarsOfCreation
      *  @custom:security only-admin 👽
      */
-    function setLendingRewards(address borrowable, uint256 allocPoint) external override advance cygnusAdmin {
+    function setLendingRewards(address borrowable, uint256 allocPoint) external override advance {
+        // Check if artificer is enabled, reverts if msg.sender is not artificer
+        if (artificerEnabled()) {
+            _checkArtificer();
+        }
+        // Artificer not enabled, caller must be admin or revert
+        else _checkAdmin();
+
         // Load lender rewards
         ShuttleInfo storage lenderRewards = getShuttleInfo[borrowable][address(0)];
 
         /// @custom:error ShuttleAlreadyInitialized Avoid initializing twice
-        if (lenderRewards.active == true) revert PillarsOfCreation__BorrowableAlreadyInitialized();
+        if (lenderRewards.active) revert PillarsOfCreation__BorrowableAlreadyInitialized();
 
         // Update the total allocation points (lender rewards have already been set, or else we revert)
         totalAllocPoint = (totalAllocPoint - lenderRewards.allocPoint) + allocPoint;
@@ -1232,23 +1262,33 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         lenderRewards.borrowable = borrowable;
         lenderRewards.collateral = address(0);
 
+        // Lending pool ID
+        lenderRewards.shuttleId = ICygnusTerminal(borrowable).shuttleId();
+
         // Push to shuttles array
         allShuttles.push(lenderRewards);
 
         /// @custom:event NewShuttleReward
-        emit NewBorrowableReward(borrowable, totalAllocPoint, allocPoint);
+        emit NewBorrowableReward(borrowable, address(0), totalAllocPoint, allocPoint);
     }
 
     /**
      *  @inheritdoc IPillarsOfCreation
      *  @custom:security only-admin 👽
      */
-    function setBorrowRewards(address borrowable, address collateral, uint256 allocPoint) external override advance cygnusAdmin {
+    function setBorrowRewards(address borrowable, address collateral, uint256 allocPoint) external override advance {
+        // Check if artificer is enabled, reverts if msg.sender is not artificer
+        if (artificerEnabled()) {
+            _checkArtificer();
+        }
+        // Artificer not enabled, caller must be admin or revert
+        else _checkAdmin();
+
         // Load lender rewards
         ShuttleInfo storage borrowRewards = getShuttleInfo[borrowable][collateral];
 
         /// @custom:error ShuttleAlreadyInitialized Avoid initializing twice
-        if (borrowRewards.active == true) revert PillarsOfCreation__CollateralAlreadyInitialized();
+        if (borrowRewards.active) revert PillarsOfCreation__CollateralAlreadyInitialized();
 
         // Update the total allocation points (lender rewards have already been set, or else we revert)
         totalAllocPoint = (totalAllocPoint - borrowRewards.allocPoint) + allocPoint;
@@ -1263,32 +1303,39 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         borrowRewards.borrowable = borrowable;
         borrowRewards.collateral = collateral;
 
+        // Lending pool ID
+        borrowRewards.shuttleId = ICygnusTerminal(collateral).shuttleId();
+
         // Push to shuttles array
         allShuttles.push(borrowRewards);
 
         /// @custom:event NewShuttleReward
-        emit NewBorrowableReward(borrowable, totalAllocPoint, allocPoint);
+        emit NewCollateralReward(borrowable, collateral, totalAllocPoint, allocPoint);
     }
 
-    // TODO: Bonus rewards in OP
     /**
      *  @notice Bonus rewards are only for borrowers
-     *  @custom:security only-admin 👽
+     *  @custom:security only-admin or only-artificer
      */
-    function setBonusRewarder(uint256 shuttleId, address bonusRewarder) external override advance cygnusAdmin {
-        //        // Retrieve shuttle information from Hangar 18.
-        //        (, , address borrowable, , ) = hangar18.allShuttles(shuttleId);
-        //
-        //        // Retrieve the pool information for the specified shuttle's borrowable address.
-        //        ShuttleInfo storage shuttle = getShuttleInfo[borrowable][Position.BORROWER];
-        //
-        //        /// @custom:error ShuttleNotInitialized Avoid adjusting rewards for an un-active shuttle
-        //        if (shuttle.active == false) {
-        //            revert PillarsOfCreation__ShuttleNotInitialized({shuttleId: shuttleId, borrowable: borrowable});
-        //        }
-        //
-        //        // Assign bonus shuttle rewards
-        //        shuttle.bonusRewarder = bonusRewarder;
+    function setBonusRewarder(address borrowable, address collateral, IBonusRewarder bonusRewarder) external override advance {
+        // Check if artificer is enabled, reverts if msg.sender is not artificer
+        if (artificerEnabled()) {
+            _checkArtificer();
+        }
+        // Artificer not enabled, if caller is admin
+        else _checkAdmin();
+
+        // Load lender rewards
+        ShuttleInfo storage shuttle = getShuttleInfo[borrowable][collateral];
+
+        /// @custom:error ShuttleAlreadyInitialized Avoid initializing twice
+        if (!shuttle.active) revert PillarsOfCreation__ShuttleNotInitialized();
+
+        // Assign bonus shuttle rewards
+        shuttle.bonusRewarder = bonusRewarder;
+
+        /// @custom:event NewBonusRewarder
+        emit NewBonusRewarder(borrowable, collateral, bonusRewarder);
     }
 
     /**
@@ -1331,5 +1378,52 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         /// @custom:event SweepToken
         emit SweepToken(token, msg.sender, balance, getCurrentEpoch());
+    }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     *  @custom:security only-admin 👽
+     */
+    function initializePillars() external override cygnusAdmin {
+        /// @custom:error PillarsAlreadyInitialized Avoid initializing pillars twice
+        if (birth != 0) revert PillarsOfCreation__PillarsAlreadyInitialized();
+
+        // Calculate the cygPerBlock at epoch 0 for rewards
+        cygPerBlockRewards = calculateCygPerBlock(0, totalCygRewards);
+
+        // Calculate the cygPerBlock for the DAO
+        cygPerBlockDAO = calculateCygPerBlock(0, totalCygDAO);
+
+        /// @custom:error CygPerBlockExceedsLimit Avoid setting above limit
+        if (cygPerBlockRewards > MAX_CYG_PER_BLOCK || cygPerBlockDAO > MAX_CYG_PER_BLOCK)
+            revert PillarsOfCreation__CygPerBlockExceedsLimit();
+
+        // Current timestamp
+        uint256 _birth = block.timestamp;
+
+        // Timestamp of deployment
+        birth = _birth;
+
+        // Timestamp of when the contract self-destructs
+        death = _birth + DURATION;
+
+        // Start epoch
+        lastEpochTime = _birth;
+
+        // Store the last drip as deployment time
+        lastDripDAO = _birth;
+
+        // Store epoch
+        getEpochInfo[0] = EpochInfo({
+            epoch: 0,
+            start: _birth,
+            end: _birth + BLOCKS_PER_EPOCH,
+            cygPerBlock: cygPerBlockRewards,
+            totalRewards: cygPerBlockRewards * BLOCKS_PER_EPOCH,
+            totalClaimed: 0
+        });
+
+        /// @custom:event NewEpoch
+        emit NewEpoch(0, 0, 0, cygPerBlockRewards);
     }
 }

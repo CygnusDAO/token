@@ -42,5 +42,13 @@ interface ICygnusTerminal is IERC20Permit {
      */
     function redeem(uint256 shares, address recipient, address owner) external returns (uint256 assets);
 
+    /**
+     *  @notice Exchange Rate between the pool token and the asset
+     */
     function exchangeRate() external view returns (uint256);
+
+    /**
+     *  @notice The lending pool ID (shared by borrowable/collateral)
+     */
+    function shuttleId() external view returns (uint256);
 }
