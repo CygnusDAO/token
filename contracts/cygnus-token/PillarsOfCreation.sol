@@ -137,6 +137,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      */
     struct ShuttleInfo {
         bool active;
+        uint256 shuttleId;
         address borrowable;
         address collateral;
         uint256 totalShares;
@@ -144,7 +145,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         uint256 lastRewardTime;
         uint256 allocPoint;
         IBonusRewarder bonusRewarder;
-        uint256 shuttleId;
+        uint256 pillarsId;
     }
 
     /**
@@ -269,12 +270,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public override cygPerBlockRewards;
+    uint256 public override cygPerBlockRewards; // Rewards for Borrowers & Lenders
 
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public override cygPerBlockDAO;
+    uint256 public override cygPerBlockDAO; // Rewards for DAO
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -502,9 +503,15 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @notice Get the shuttle by ID (not the same as hangar18 `allShuttles`)
      */
-    function getShuttleById(uint256 shuttleId) external view returns (ShuttleInfo memory shuttle) {
-        shuttle = allShuttles[shuttleId];
-        return getShuttleInfo[shuttle.borrowable][shuttle.collateral];
+    function getShuttleById(uint256 shuttleId) external view returns (ShuttleInfo memory lenders, ShuttleInfo memory borrowers) {
+        // Get shuttle ID from hangar
+        (, , address borrowable, address collateral, ) = hangar18.allShuttles(shuttleId);
+
+        // Lender's pool is always with address zero as collateral
+        lenders = getShuttleInfo[borrowable][address(0)];
+
+        // Borrower's pool is with both
+        borrowers = getShuttleInfo[borrowable][collateral];
     }
 
     /**
@@ -919,14 +926,14 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Assert we are doomed, can only be set my admin (ideally in the last epoch)
         assert(doomSwitch);
 
-        // Get the current admin from the factory
-        address admin = hangar18.admin();
-
         /// @custom:event Supernova
         emit Supernova(msg.sender, birth, death, epoch);
 
         // Hail Satan ʕ•ᴥ•ʔ
-        selfdestruct(payable(admin));
+        // selfdestruct(payable(admin));
+        // By now this contract would have minted exactly 2,500,000. Any mints after will be reverted by the
+        // CYG contract. Hide self destruct as it will be deprecated and not all EVMs support it (ie ZKEVM)
+        return;
     }
 
     /**
@@ -1195,6 +1202,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @custom:security non-reentrant only-eoa
      */
     function dripCygDAO() external override nonReentrant onlyEOA advance {
+        // Drip CYG to dao
         dripCygDAOPrivate();
     }
 
@@ -1226,6 +1234,9 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Assign new points
         shuttle.allocPoint = allocPoint;
+
+        // Update pool in array
+        allShuttles[shuttle.pillarsId].allocPoint = allocPoint;
 
         /// @custom:event NewShuttleAllocPoint
         emit NewShuttleAllocPoint(borrowable, collateral, oldAlloc, allocPoint);
@@ -1264,6 +1275,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Lending pool ID
         lenderRewards.shuttleId = ICygnusTerminal(borrowable).shuttleId();
+        lenderRewards.pillarsId = allShuttles.length;
 
         // Push to shuttles array
         allShuttles.push(lenderRewards);
@@ -1305,6 +1317,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Lending pool ID
         borrowRewards.shuttleId = ICygnusTerminal(collateral).shuttleId();
+        borrowRewards.pillarsId = allShuttles.length;
 
         // Push to shuttles array
         allShuttles.push(borrowRewards);
@@ -1362,13 +1375,16 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
     /**
      *  @inheritdoc IPillarsOfCreation
-     *  @custom:security non-reentrant only-admin 👽
+     *  @custom:security only-admin 👽
      */
-    function sweepToken(address token) external override nonReentrant advance cygnusAdmin {
+    function sweepToken(address token) external override advance cygnusAdmin {
         /// @custom:error CantSweepUnderlying Avoid sweeping underlying
         if (token == cygToken) {
             revert PillarsOfCreation__CantSweepUnderlying({token: token, underlying: cygToken});
         }
+
+        // If address 0 then we are sweeping native. Sweep native and return
+        if (token == address(0)) return SafeTransferLib.safeTransferETH(msg.sender, address(this).balance);
 
         // Balance this contract has of the erc20 token we are recovering
         uint256 balance = token.balanceOf(address(this));

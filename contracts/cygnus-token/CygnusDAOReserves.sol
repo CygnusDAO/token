@@ -80,47 +80,43 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
 
     /// @inheritdoc ICygnusDAOReserves
-    mapping(uint256 => Shuttle) public override getShuttle;
-
-    /// @inheritdoc ICygnusDAOReserves
     Shuttle[] public override allShuttles;
 
     /// @inheritdoc ICygnusDAOReserves
-    uint256 public override daoWeight;
+    mapping(uint256 => Shuttle) public override getShuttle;
 
+    /// @inheritdoc ICygnusDAOReserves
+    string public override name = "Cygnus: DAO Reserves";
+
+    /// @inheritdoc ICygnusDAOReserves
+    address public override cygnusDAOSafe;
+    /// @inheritdoc ICygnusDAOReserves
+    address public override cygnusX1Vault;
+    /// @inheritdoc ICygnusDAOReserves
+    uint256 public override daoWeight;
     /// @inheritdoc ICygnusDAOReserves
     uint256 public override x1VaultWeight;
 
     /// @inheritdoc ICygnusDAOReserves
     address public override cygToken;
-
     /// @inheritdoc ICygnusDAOReserves
-    IHangar18 public immutable override hangar18;
+    uint256 public override daoLock;
 
     /// @inheritdoc ICygnusDAOReserves
     address public immutable override usd;
 
     /// @inheritdoc ICygnusDAOReserves
-    uint256 public override daoLock;
+    IHangar18 public immutable override hangar18;
 
     /// @inheritdoc ICygnusDAOReserves
-    address public override cygnusDAOSafe;
-
-    /// @inheritdoc ICygnusDAOReserves
-    address public override cygnusX1Vault;
-
-    /// @inheritdoc ICygnusDAOReserves
-    bool public override privateBanker = true;
+    bool public override privateBanker = true; // If true only admin can move
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             3. CONSTRUCTOR
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
 
     /// @notice Constructs the DAO Reserves contract
-    constructor(IHangar18 _hangar18, uint256 _weight) {
-        /// @custom:error WeightNotAllowed
-        if (_weight > 1e18) revert CygnusDAOReserves__WeightNotAllowed({weight: _weight});
-
+    constructor(IHangar18 _hangar18) {
         // Set the Hangar18 contract address
         hangar18 = _hangar18;
 
@@ -128,13 +124,13 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         usd = _hangar18.usd(); // This is underlying for all borrowables
 
         // Set the weight of the shares that are redeemed and sent to the vault
-        x1VaultWeight = _weight;
+        x1VaultWeight = 0.5e18;
 
         // Set the weight of the shares that this contract receives that are sent to the dao positions address
         daoWeight = 1e18 - x1VaultWeight;
 
-        // CYG tokens for the DAO are locked from moving for the first 3 months
-        daoLock = block.timestamp + 90 days;
+        // CYG tokens for the DAO are locked from moving for the first 6 months
+        daoLock = block.timestamp + 180 days;
     }
 
     /**
@@ -191,9 +187,6 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     /// @inheritdoc ICygnusDAOReserves
     function cygTokenBalance() public view returns (uint256) {
-        // If CYG token is not set
-        if (cygToken == address(0)) return 0;
-
         // Return CYG balance
         return _checkBalance(cygToken);
     }
@@ -204,10 +197,10 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     /*  ────────────────────────────────────────────── Private ────────────────────────────────────────────────  */
 
-    /// @notice Redeems vault token (CygUSD or CygLP)
-    /// @param borrowable The address of the CygUSD or CygLP vault token
-    /// @return shares The amount of shares not redeemed
-    /// @return assets The amount of assets received
+    /// @notice Redeems vault token (CygUSD)
+    /// @param borrowable The address of the CygUSD vault token
+    /// @return shares The amount of shares sent to the safe
+    /// @return assets The amount of assets sent to the vault
     function _redeemAndFundUSD(address borrowable) private returns (uint256 shares, uint256 assets) {
         /// @custom:error CantRedeemAddressZero Avoid if shuttle does not exist
         if (borrowable == address(0)) revert CygnusDAOReserves__CantRedeemAddressZero();
@@ -228,6 +221,9 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         if (shares > 0) borrowable.safeTransfer(cygnusDAOSafe, shares);
     }
 
+    /// @notice Redeems vault token (CygLP)
+    /// @param collateral The address of the CygLP vault token
+    /// @return shares The amount of shares sent to the safe
     function _redeemAndFundCygLP(address collateral) private returns (uint256 shares) {
         // Get balance of this CygLP we own
         shares = _checkBalance(collateral);
@@ -238,6 +234,8 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
 
+    // USDC: Have 100 CygUSD. We redeem 50 CygUSD for USDC and send the USDC to the X1 Vault.
+    //       The 50 leftover CygUSD we send to the DAO to not be redeemed, kept as reserves.
     // USDC: Have 100 CygUSD. We redeem 50 CygUSD for USDC and send the USDC to the X1 Vault.
     //       The 50 leftover CygUSD we send to the DAO to not be redeemed, kept as reserves.
 
@@ -284,6 +282,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
                 // Increase assets received
                 x1Assets += _assets;
 
+                // prettier-ignore
                 i++;
             }
         }
@@ -417,6 +416,16 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     /// @inheritdoc ICygnusDAOReserves
     /// @custom:security only-admin
+    function sweepNative() external override cygnusAdmin { 
+      // Get native balance
+      uint256 balance = address(this).balance;
+
+      // Get native out
+      if (balance > 0) SafeTransferLib.safeTransferETH(msg.sender, balance);
+    }
+
+    /// @inheritdoc ICygnusDAOReserves
+    /// @custom:security only-admin
     function claimCygTokenDAO(uint256 amount, address to) external override cygnusAdmin {
         // Current timestamp of withdrawal
         uint256 currentTime = block.timestamp;
@@ -447,18 +456,35 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         emit SwitchPrivateBanker(privateBanker);
     }
 
-    function increaseDaoLock() external cygnusAdmin {}
-
-    error CygnusDAOReserves__SafeCantBeZero();
-    error CygnusDAOReserves__X1VaultCantBeZero();
-
-    function setCygnusDAOSafe(address _newSafe) external cygnusAdmin {
+    /// @inheritdoc ICygnusDAOReserves
+    /// @custom:security only-admin
+    function setCygnusDAOSafe(address _newSafe) external override cygnusAdmin {
+        /// @custom:error SafeCantBeZero
         if (_newSafe == address(0)) revert CygnusDAOReserves__SafeCantBeZero();
+
+        // Safe up to now
+        address oldSafe = cygnusDAOSafe;
+
+        // Assign new safe
         cygnusDAOSafe = _newSafe;
+
+        /// @custom;event NewDAOSafe
+        emit NewDAOSafe(oldSafe, _newSafe);
     }
 
-    function setCygnusX1Vault(address _x1Vault) external cygnusAdmin {
+    /// @inheritdoc ICygnusDAOReserves
+    /// @custom:security only-admin
+    function setCygnusX1Vault(address _x1Vault) external override cygnusAdmin {
+        /// @custom:error X1VaultCantBeZero
         if (_x1Vault == address(0)) revert CygnusDAOReserves__X1VaultCantBeZero();
+
+        // Old vault up to now
+        address oldVault = cygnusX1Vault;
+
+        // Assign new
         cygnusX1Vault = _x1Vault;
+
+        /// @custom:event NewX1Vault
+        emit NewX1Vault(oldVault, _x1Vault);
     }
 }

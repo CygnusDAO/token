@@ -38,8 +38,11 @@ interface ICygnusDAOReserves {
     /// @dev Reverts if borrowable is not set
     error CygnusDAOReserves__CantRedeemAddressZero();
 
-    /// @dev Reverts when deploying with zero address as the dao safe
-    error CygnusDAOReserves__DaoSafeCantBeZero();
+    /// @dev Reverts if Safe is 0
+    error CygnusDAOReserves__SafeCantBeZero();
+
+    /// @dev Reverts if X1 vault is 0
+    error CygnusDAOReserves__X1VaultCantBeZero();
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             2. CUSTOM EVENTS
@@ -109,6 +112,18 @@ interface ICygnusDAOReserves {
     /// @custom:event CygTokenAdded
     event CygTokenAdded(address token);
 
+    /// @dev Logs when admin replaces the dao safe
+    /// @param oldSafe the address of the safe up to now
+    /// @param newSafe the address of the new safe
+    /// @custom:event NewDAOSafe
+    event NewDAOSafe(address oldSafe, address newSafe);
+
+    /// @dev Logs when admin replaces the X1 Vault
+    /// @param oldVault the address of the X1 Vault up to now
+    /// @param newVault the address of the new X1 Vault
+    /// @custom:event NewX1Vault
+    event NewX1Vault(address oldVault, address newVault);
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             3. CONSTANT FUNCTIONS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -143,6 +158,9 @@ interface ICygnusDAOReserves {
     /// @return borrowable The address of the borrowable asset.
     /// @return collateral The address of the collateral asset.
     function getShuttle(uint256 id) external view returns (bool initialized, uint256 shuttleId, address borrowable, address collateral);
+
+    /// @dev Name of the contract
+    function name() external view returns (string memory);
 
     /// @dev Retrieves the address of the Hangar18 contract.
     /// @return The address of the Hangar18 contract.
@@ -230,4 +248,15 @@ interface ICygnusDAOReserves {
     /// @notice Admin allows anyone to split the shares/assets between the DAO Reserves and X1 Vault
     /// @custom:security only-admin
     function switchPrivateBanker() external;
+
+    /// @notice Admin assigns new safe address
+    /// @custom:security only-admin
+    function setCygnusDAOSafe(address _safe) external;
+
+    /// @notice Admin assigns new X1 vault address
+    /// @custom:security only-admin
+    function setCygnusX1Vault(address _vault) external;
+
+    /// @notice Sweep ETH
+    function sweepNative() external;
 }

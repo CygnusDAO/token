@@ -262,11 +262,12 @@ interface IPillarsOfCreation {
      *  @return allocPoint The allocation points of the pool
      *  @return bonusRewarder The rewarder contract to receive bonus token rewards apart from CYG
      *  @return shuttleId The ID of the lending pool (shared by borrowable/collateral)
+     *  @return pillarsId The index of the shuttle in the array
      */
     function getShuttleInfo(
         address borrowable,
         address collateral
-    ) external view returns (bool, address, address, uint256, uint256, uint256, uint256, IBonusRewarder, uint256);
+    ) external view returns (bool, uint256, address, address, uint256, uint256, uint256, uint256, IBonusRewarder, uint256);
 
     /**
      *  @notice Mapping to keep track of UserInfo for each user's deposit and borrow activity
