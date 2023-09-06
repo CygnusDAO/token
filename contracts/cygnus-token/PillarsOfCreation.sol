@@ -248,11 +248,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      */
     uint256 public immutable override totalCygDAO;
 
-    /**
-     *  @inheritdoc IPillarsOfCreation
-     */
-    address public immutable override daoReserves;
-
     // Current settings
 
     /**
@@ -326,9 +321,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Set factory
         hangar18 = _hangar18;
-
-        // The DAO's latest reserves address from the factory
-        daoReserves = _hangar18.daoReserves();
     }
 
     /**
@@ -1063,6 +1055,9 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Store current time
         lastDripDAO = currentTime;
 
+        // Latest DAO reserves contract
+        address daoReserves = hangar18.daoReserves();
+
         // Mint new CYG
         IERC20(cygToken).mint(daoReserves, _pendingCygDAO);
 
@@ -1131,7 +1126,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      */
     function trackRewards(address account, uint256 balance, address collateral) external override {
         // Don't allow the DAO to receive CYG rewards from positions (in case of minted CygUSD or if we have CygLP positions)
-        if (account == address(0) || account == daoReserves) return;
+        if (account == address(0) || account == hangar18.daoReserves()) return;
 
         // Interactions
         address borrowable = msg.sender;

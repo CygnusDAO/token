@@ -51,4 +51,9 @@ interface ICygnusTerminal is IERC20Permit {
      *  @notice The lending pool ID (shared by borrowable/collateral)
      */
     function shuttleId() external view returns (uint256);
+
+    /**
+     *  @notice Syncs totalBalance in terms of its underlying
+     */
+    function sync() external;
 }

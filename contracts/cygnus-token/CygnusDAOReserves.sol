@@ -86,7 +86,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     mapping(uint256 => Shuttle) public override getShuttle;
 
     /// @inheritdoc ICygnusDAOReserves
-    string public override name = "Cygnus: DAO Reserves";
+    string public override name = "CygnusDAO: Reserves";
 
     /// @inheritdoc ICygnusDAOReserves
     address public override cygnusDAOSafe;
@@ -129,8 +129,8 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         // Set the weight of the shares that this contract receives that are sent to the dao positions address
         daoWeight = 1e18 - x1VaultWeight;
 
-        // CYG tokens for the DAO are locked from moving for the first 6 months
-        daoLock = block.timestamp + 180 days;
+        // CYG tokens for the DAO are locked from moving for the first 3 months
+        daoLock = block.timestamp + 90 days;
     }
 
     /**
@@ -248,6 +248,9 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         // Address of borrowable at index `i`
         address borrowable = getShuttle[shuttleId].borrowable;
 
+        // Sync pool (accrues interest)
+        ICygnusTerminal(borrowable).sync();
+
         // Redeem CygUSD for USD
         (daoShares, x1Assets) = _redeemAndFundUSD(borrowable);
 
@@ -271,6 +274,9 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         for (uint256 i = 0; i < shuttlesLength; ) {
             // Address of borrowable at index `i`
             address borrowable = _shuttles[i].borrowable;
+
+            // Sync pool (accrues interest)
+            ICygnusTerminal(borrowable).sync();
 
             // Redeem CygUSD for USD
             (uint256 _shares, uint256 _assets) = _redeemAndFundUSD(borrowable);
@@ -408,7 +414,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         uint256 balance = token.balanceOf(address(this));
 
         // Transfer token
-        token.safeTransfer(msg.sender, balance);
+        if (balance > 0) token.safeTransfer(msg.sender, balance);
 
         /// @custom:event SweepToken
         emit SweepToken(token, balance);
@@ -416,12 +422,15 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     /// @inheritdoc ICygnusDAOReserves
     /// @custom:security only-admin
-    function sweepNative() external override cygnusAdmin { 
-      // Get native balance
-      uint256 balance = address(this).balance;
+    function sweepNative() external override cygnusAdmin {
+        // Get native balance
+        uint256 balance = address(this).balance;
 
-      // Get native out
-      if (balance > 0) SafeTransferLib.safeTransferETH(msg.sender, balance);
+        // Get native out
+        if (balance > 0) SafeTransferLib.safeTransferETH(msg.sender, balance);
+
+        /// @custom:event SweepToken
+        emit SweepToken(address(0), balance);
     }
 
     /// @inheritdoc ICygnusDAOReserves

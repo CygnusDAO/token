@@ -452,11 +452,6 @@ interface IPillarsOfCreation {
     function doomSwitch() external view returns (bool);
 
     /**
-     *  @return daoReserves The latest address of the dao reserves in the hangar18 contract
-     */
-    function daoReserves() external view returns (address);
-
-    /**
      *  @return totalCygRewards The total amount of CYG tokens to be distributed to borrowers and lenders by the end of this contract's lifetime.
      */
     function totalCygRewards() external view returns (uint256);
