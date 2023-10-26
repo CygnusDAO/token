@@ -99,34 +99,4 @@ With total token emissions of 3,000,000 the per epoch emissions as computed by t
 
 # Collecting CYG Rewards
 
-All CYG rewards come from the borrowable contracts and each borrowable has a lender pool and borrower pool.
-
-```solidity
-    /**
-     *  @custom:enum Position Lending or Borrowing shuttle
-     *  @custom:member LENDER Pass 0 to claim from lender pools
-     *  @custom:memebr BROROWER Pass 1 to claim from borrower pools
-     */
-    enum Position {
-        LENDER,
-        BORROWER
-    }
-
-    /**
-     *  @dev Harvests the accumulated reward for the specified user from the specified borrowable address's pool, and transfers
-     *  it to the specified recipient address.
-     *
-     *  @param borrowable Address of the borrowable contract for which to harvest rewards.
-     *  @param position Collect lending or borrowing position (0 for lending, 1 for borrowing)
-     *  @param to Address to which to transfer the harvested rewards.
-     *
-     *  Effects:
-     *  - Updates the user's reward debt to reflect the current accumulated reward.
-     *
-     *  Interactions:
-     *  - Transfers the user's pending reward to the specified recipient address.
-     *
-     *  @custom:security non-reentrant
-     */
-    function collect(address borrowable, Position position, address to) external;
-```
+TODO: Example of collecting CYG for borrowers and lenders
