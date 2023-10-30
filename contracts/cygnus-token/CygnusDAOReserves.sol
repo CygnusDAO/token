@@ -205,6 +205,9 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         /// @custom:error CantRedeemAddressZero Avoid if shuttle does not exist
         if (borrowable == address(0)) revert CygnusDAOReserves__CantRedeemAddressZero();
 
+        // Acrue interest first and receive CygUSD shares (if any)
+        ICygnusTerminal(borrowable).accrueInterest();
+
         // Get balance of vault shares we own
         uint256 totalShares = _checkBalance(borrowable);
 
@@ -248,9 +251,6 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         // Address of borrowable at index `i`
         address borrowable = getShuttle[shuttleId].borrowable;
 
-        // Sync pool (accrues interest)
-        ICygnusTerminal(borrowable).sync();
-
         // Redeem CygUSD for USD
         (daoShares, x1Assets) = _redeemAndFundUSD(borrowable);
 
@@ -274,9 +274,6 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         for (uint256 i = 0; i < shuttlesLength; ) {
             // Address of borrowable at index `i`
             address borrowable = _shuttles[i].borrowable;
-
-            // Sync pool (accrues interest)
-            ICygnusTerminal(borrowable).sync();
 
             // Redeem CygUSD for USD
             (uint256 _shares, uint256 _assets) = _redeemAndFundUSD(borrowable);

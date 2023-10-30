@@ -136,13 +136,14 @@ interface IPillarsOfCreation {
      *  @dev Logs when a lending pool is updated
      *
      *  @param borrowable Address of the CygnusBorrow contract
+     *  @param collateral Address of the CygnusCollateral contract
      *  @param sender The msg.sender
      *  @param lastRewardTime The last reward time for this pool
      *  @param epoch The current epoch
      *
      *  @custom:event UpdateShuttle
      */
-    event UpdateShuttle(address indexed borrowable, address sender, uint256 lastRewardTime, uint256 epoch);
+    event UpdateShuttle(address indexed borrowable, address indexed collateral, address sender, uint256 lastRewardTime, uint256 epoch);
 
     /**
      *  @notice Logs when `sender` harvests and receives CYG
@@ -387,7 +388,12 @@ interface IPillarsOfCreation {
     function getCurrentEpoch() external view returns (uint256);
 
     /**
-     *  @return currentEpochRewards The current epoch rewards as per the emissions curve
+     *  @return currentEpochRewards The current epoch rewards for the DAO as per the emissions curve
+     */
+    function currentEpochRewardsDAO() external view returns (uint256);
+
+    /**
+     *  @return currentEpochRewards The current epoch rewards for borrowers/lenders as per the emissions curve
      */
     function currentEpochRewards() external view returns (uint256);
 
@@ -400,6 +406,14 @@ interface IPillarsOfCreation {
      *  @return nextEpochRewards The amount of rewards to be released in the next epoch.
      */
     function nextEpochRewards() external view returns (uint256);
+
+    /**
+     *  @dev Returns the amount of CYG tokens that are pending to be claimed by the user for all pools.
+     *
+     *  @param _user The address of the user.
+     *  @return The amount of CYG tokens pending to be claimed by `_user`.
+     */
+    function pendingCygAll(address _user) external view returns (uint256);
 
     /**
      *  @dev Returns the amount of CYG tokens that are pending to be claimed by the user.
@@ -700,6 +714,14 @@ interface IPillarsOfCreation {
 
     /**
      *  @notice Admin 👽
+     *  @notice Sweeps native
+     *
+     *  @custom:security only-admin
+     */
+    function sweepNative() external;
+
+    /**
+     *  @notice Admin 👽
      *  @notice Set the doom switch on the last epoch
      *  @custom:security only-admin
      *
@@ -721,3 +743,4 @@ interface IPillarsOfCreation {
      */
     function initializePillars() external;
 }
+

@@ -55,7 +55,7 @@ import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
  *  @notice The only contract capable of minting the CYG token. The CYG token is divided between the DAO and lenders
  *          or borrowers of the Cygnus protocol.
  *          It is similar to a masterchef contract but the rewards are based on epochs. Each epoch the rewards get
- *          reduced by the `REDUCTION_FACTOR_PER_EPOCH` which is set at 2.5%. When deploying, the contract calculates
+ *          reduced by the `REDUCTION_FACTOR_PER_EPOCH` which is set at 2%. When deploying, the contract calculates
  *          the initial rewards per block based on:
  *            - the total amount of rewards
  *            - the total number of epochs
@@ -63,22 +63,25 @@ import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
  *
  *          cygPerBlockAtEpochN = (totalRewards - accumulatedRewards) * reductionFactor / emissionsCurve(epochN)
  *
- *                   700k |
- *                        |                        Example with 1.75M totalRewards, 2.5% reduction and 42 epochs
- *                   600k |_______.
+ *                        |
+ *                   800k |_______.
+ *                        |       |
+ *                   700k |       |
+ *                        |       |                Example with 1.75M totalRewards, 2% reduction and 100 epochs
+ *                   600k |       |
  *                        |       |                                Epochs    |    Rewards
  *                   500M |       |                             -------------|---------------
- *                        |       |_______.                       00 - 10    |   597,864.47
- *          rewards  400k |       |       |                       11 - 20    |   461,139.90
- *                        |       |       |_______.               21 - 30    |   360,325.55
- *                   300k |       |       |       |_______.       31 - 42    |   327,670.07
- *                        |       |       |       |       |                  | 1,750,000.00
- *                   200k |       |       |       |       |
+ *                        |       |_______.                       00 - 24    |   800,037.32
+ *          rewards  400k |       |       |                       25 - 49    |   482,794.30
+ *                        |       |       |                       50 - 74    |   291,349.33
+ *                   300k |       |       |_______.               75 - 99    |   175,819.05
+ *                        |       |       |       |                          | 1,750,000.00
+ *                   200k |       |       |       |_______
  *                        |       |       |       |       |
  *                   100k |       |       |       |       |
  *                        |       |       |       |       |
  *                        |_______|_______|_______|_______|__
- *                          00-10   11-20   21-30   31-42
+ *                          00-24   25-49   50-74   75-99
  *                                     epochs
  *
  *          On any interaction the `advance` function is called to check if we can advance to a new epoch. The contract
@@ -184,7 +187,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @notice For lender rewards, then collateral is the Zero Address.
      *  @inheritdoc IPillarsOfCreation
      */
-    mapping(address => mapping(address => ShuttleInfo)) public getShuttleInfo; // borrowable -> collateral -> Shuttle
+    mapping(address => mapping(address => ShuttleInfo)) public getShuttleInfo; // borrowable -> collateral = Shuttle
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -209,12 +212,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public constant override DURATION = SECONDS_PER_YEAR * 4;
+    uint256 public constant override DURATION = SECONDS_PER_YEAR * 8;
 
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public constant override TOTAL_EPOCHS = 42;
+    uint256 public constant override TOTAL_EPOCHS = 100;
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -224,7 +227,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public constant override REDUCTION_FACTOR_PER_EPOCH = 0.025e18; // 2.5% `cygPerblock` reduction per epoch
+    uint256 public constant override REDUCTION_FACTOR_PER_EPOCH = 0.02e18; // 2% `cygPerblock` reduction per epoch
 
     // Immutables //
 
@@ -357,7 +360,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @custom:modifier advance Advances the epoch if necessary and self-destructs contract if all epochs are finished
      */
     modifier advance() {
-        // Try and addvance epoch
+        // Try and advance epoch
         advanceEpochPrivate();
         // Update all pools if we didn't self-destruct
         acceleratePrivate();
@@ -452,7 +455,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
             result = result.mulWad(oneMinusReductionFactor);
         }
 
-        // 1 minus the result
         return 1e18 - result;
     }
 
@@ -468,26 +470,60 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     }
 
     /**
+     *  @notice Same claculation as in line 64. We calculate emissions at epoch 0 and then adjust the rewards by reduction 
+     *          factor for gas savings (instead of doing a for loop within a for loop)
      *  @inheritdoc IPillarsOfCreation
      */
     function calculateCygPerBlock(uint256 epoch, uint256 totalRewards) public pure override returns (uint256 rewardRate) {
-        // Accumulator of previous rewards
-        uint256 previousRewards;
+        // Calculate emissions curve at epoch 0 - This will calculate the initial emissions curve at epoch `i`
+        // given a reduction factor and total epochs
+        uint256 emissionsAt0 = emissionsCurve(0);
 
-        // keep track of rewards
-        uint256 rewards;
+        // Get rewards for epoch 0
+        uint256 rewards = totalRewards.fullMulDiv(REDUCTION_FACTOR_PER_EPOCH, emissionsAt0);
 
         // Get total CYG rewards for `epoch`
-        for (uint i = 0; i <= epoch; i++) {
-            // Calculate rewards for the current epoch
-            rewards = (totalRewards - previousRewards).fullMulDiv(REDUCTION_FACTOR_PER_EPOCH, emissionsCurve(i));
-
-            // Accumulate CYG rewards released up to this point
-            previousRewards += rewards;
+        for (uint i = 0; i < epoch; i++) {
+            rewards = rewards.mulWad(1e18 - REDUCTION_FACTOR_PER_EPOCH);
         }
 
-        // Return cygPerBlock for `epoch`
+        // Return the CYG per block rate at `epoch` given `totalRewards`
         rewardRate = rewards / BLOCKS_PER_EPOCH;
+    }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     */
+    function pendingCyg(address borrowable, address collateral, address _user) public view override returns (uint256 pending) {
+        // Load pool to memory
+        ShuttleInfo memory shuttle = getShuttleInfo[borrowable][collateral];
+
+        // Load user to memory
+        UserInfo memory user = getUserInfo[borrowable][collateral][_user];
+
+        // Load the accumulated reward per share
+        uint256 accRewardPerShare = shuttle.accRewardPerShare;
+
+        // Load total shares from the pool
+        uint256 totalShares = shuttle.totalShares;
+
+        // Current timestamp
+        uint256 timestamp = getBlockTimestamp();
+
+        // If the current block's timestamp is after the last reward time and there are shares in the pool
+        if (timestamp > shuttle.lastRewardTime && totalShares != 0) {
+            // Calculate the time elapsed since the last reward
+            uint256 timeElapsed = timestamp - shuttle.lastRewardTime;
+
+            // Calculate the reward for the elapsed time, using the pool's allocation point and total allocation points
+            uint256 reward = (timeElapsed * cygPerBlockRewards * shuttle.allocPoint) / totalAllocPoint;
+
+            // Add the calculated reward per share to the accumulated reward per share
+            accRewardPerShare = accRewardPerShare + (reward * ACC_PRECISION) / totalShares;
+        }
+
+        // Calculate the pending reward for the user, based on their shares and the accumulated reward per share
+        pending = uint256(int256((user.shares * accRewardPerShare) / ACC_PRECISION) - (user.rewardDebt));
     }
 
     /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
@@ -520,36 +556,20 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    function pendingCyg(address borrowable, address collateral, address borrower) external view override returns (uint256 pending) {
-        // Load pool to memory
-        ShuttleInfo memory shuttle = getShuttleInfo[borrowable][collateral];
+    function pendingCygAll(address _user) external view returns (uint256 pending) {
+        // Gas savings
+        ShuttleInfo[] memory shuttles = allShuttles;
 
-        // Load user to memory
-        UserInfo memory user = getUserInfo[borrowable][collateral][borrower];
+        // Length
+        uint256 totalShuttles = shuttles.length;
 
-        // Load the accumulated reward per share
-        uint256 accRewardPerShare = shuttle.accRewardPerShare;
-
-        // Load total shares from the pool
-        uint256 totalShares = shuttle.totalShares;
-
-        // Current timestamp
-        uint256 timestamp = getBlockTimestamp();
-
-        // If the current block's timestamp is after the last reward time and there are shares in the pool
-        if (timestamp > shuttle.lastRewardTime && totalShares != 0) {
-            // Calculate the time elapsed since the last reward
-            uint256 timeElapsed = timestamp - shuttle.lastRewardTime;
-
-            // Calculate the reward for the elapsed time, using the pool's allocation point and total allocation points
-            uint256 reward = (timeElapsed * cygPerBlockRewards * shuttle.allocPoint) / totalAllocPoint;
-
-            // Add the calculated reward per share to the accumulated reward per share
-            accRewardPerShare = accRewardPerShare + (reward * ACC_PRECISION) / totalShares;
+        // Loop through each shuttle
+        for (uint256 i = 0; i < totalShuttles; i++) {
+            // Get pending cyg for each shuttle
+            // note that these shuttles are different from hangar18 shuttles as
+            // collateral can be zero address here to represent lender pools
+            pending += pendingCyg(shuttles[i].borrowable, shuttles[i].collateral, _user);
         }
-
-        // Calculate the pending reward for the user, based on their shares and the accumulated reward per share
-        pending = uint256(int256((user.shares * accRewardPerShare) / ACC_PRECISION) - (user.rewardDebt));
     }
 
     /**
@@ -609,6 +629,17 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Get rewards claimed progress relative to epoch progress. ie. epoch progression is 50% and 50%
         // of rewards in this epoch have been claimed then we are at 100% or 1e18
         return claimed.divWad(rewards.mulWad(epochProgress));
+    }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     */
+    function currentEpochRewardsDAO() external view override returns (uint256) {
+        // Get current epoch
+        uint256 currentEpoch = getCurrentEpoch();
+
+        // Calculate current epoch rewards
+        return calculateEpochRewards(currentEpoch, totalCygDAO);
     }
 
     /**
@@ -864,14 +895,14 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
             // Check that contract is not expired
             if (currentEpoch < TOTAL_EPOCHS) {
+                // Store last epoch update
+                lastEpochTime = currentTime;
+
                 // The cygPerBlock up to this epoch
                 uint256 oldCygPerBlock = cygPerBlockRewards;
 
                 // Store new cygPerBlock
                 cygPerBlockRewards = calculateCygPerBlock(currentEpoch, totalCygRewards);
-
-                // Store last epoch update
-                lastEpochTime = currentTime;
 
                 // Store this info once on each advance
                 EpochInfo storage epoch = getEpochInfo[currentEpoch];
@@ -925,7 +956,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // selfdestruct(payable(admin));
         // By now this contract would have minted exactly 2,500,000. Any mints after will be reverted by the
         // CYG contract. Hide self destruct as it will be deprecated and not all EVMs support it (ie ZKEVM)
-        return;
     }
 
     /**
@@ -984,6 +1014,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Loop through each shuttle
         for (uint256 i = 0; i < totalShuttles; i++) {
             // Update all pools - doesn't emit event
+            // Shuttles not the same as hangar18
             updateShuttlePrivate(shuttles[i].borrowable, shuttles[i].collateral);
         }
 
@@ -1169,12 +1200,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @inheritdoc IPillarsOfCreation
      *  @custom:security non-reentrant only-eoa
      */
-    function updateShuttle(address borrowable, address collateral) external override nonReentrant onlyEOA advance {
+    function updateShuttle(address borrowable, address collateral) external override nonReentrant onlyEOA {
         // Update the borrower's pool for this borrowable
         updateShuttlePrivate(borrowable, collateral);
 
         /// @custom:event UpdateShuttle
-        emit UpdateShuttle(borrowable, msg.sender, block.timestamp, getCurrentEpoch());
+        emit UpdateShuttle(borrowable, collateral, msg.sender, block.timestamp, getCurrentEpoch());
     }
 
     /**
@@ -1256,7 +1287,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         if (lenderRewards.active) revert PillarsOfCreation__BorrowableAlreadyInitialized();
 
         // Update the total allocation points (lender rewards have already been set, or else we revert)
-        totalAllocPoint = (totalAllocPoint - lenderRewards.allocPoint) + allocPoint;
+        totalAllocPoint = totalAllocPoint + allocPoint;
 
         // Enable
         lenderRewards.active = true;
@@ -1298,7 +1329,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         if (borrowRewards.active) revert PillarsOfCreation__CollateralAlreadyInitialized();
 
         // Update the total allocation points (lender rewards have already been set, or else we revert)
-        totalAllocPoint = (totalAllocPoint - borrowRewards.allocPoint) + allocPoint;
+        totalAllocPoint = totalAllocPoint + allocPoint;
 
         // Enable
         borrowRewards.active = true;
@@ -1352,6 +1383,8 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      */
     function setDoomSwitch() external override advance cygnusAdmin {
         // Set the doom switch, cannot be turned off!
+        if (doomSwitch) return;
+
         doomSwitch = true;
 
         /// @custom:event DoomSwitchSet
@@ -1378,17 +1411,29 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
             revert PillarsOfCreation__CantSweepUnderlying({token: token, underlying: cygToken});
         }
 
-        // If address 0 then we are sweeping native. Sweep native and return
-        if (token == address(0)) return SafeTransferLib.safeTransferETH(msg.sender, address(this).balance);
-
         // Balance this contract has of the erc20 token we are recovering
         uint256 balance = token.balanceOf(address(this));
 
         // Transfer token
-        token.safeTransfer(msg.sender, balance);
+        if (balance > 0) token.safeTransfer(msg.sender, balance);
 
         /// @custom:event SweepToken
         emit SweepToken(token, msg.sender, balance, getCurrentEpoch());
+    }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     *  @custom:security only-admin
+     */
+    function sweepNative() external override advance cygnusAdmin {
+        // Get native balance
+        uint256 balance = address(this).balance;
+
+        // Get ETH out
+        if (balance > 0) SafeTransferLib.safeTransferETH(msg.sender, balance);
+
+        /// @custom:event SweepToken
+        emit SweepToken(address(0), msg.sender, balance, getCurrentEpoch());
     }
 
     /**
