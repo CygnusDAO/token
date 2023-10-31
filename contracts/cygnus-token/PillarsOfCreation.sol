@@ -61,7 +61,7 @@ import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
  *            - the total number of epochs
  *            - reduction factor.
  *
- *          cygPerBlockAtEpochN = (totalRewards - accumulatedRewards) * reductionFactor / emissionsCurve(epochN)
+ *          rewardsAtEpochN = (totalRewards - accumulatedRewards) * reductionFactor / emissionsCurve(epochN)
  *
  *                        |
  *                   800k |_______.
@@ -112,67 +112,15 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /*  ────────────────────────────────────────────── Private ────────────────────────────────────────────────  */
 
     /**
-     *  @custom:struct Epoch Information on each epoch
-     *  @custom:member epoch The ID for this epoch
-     *  @custom:member cygPerBlock The CYG reward rate for this epoch
-     *  @custom:member totalRewards The total amount of CYG estimated to be rewarded in this epoch
-     *  @custom:member totalClaimed The total amount of claimed CYG
-     *  @custom:member start The unix timestamp of when this epoch started
-     *  @custom:member end The unix timestamp of when it ended or is estimated to end
-     */
-    struct EpochInfo {
-        uint256 epoch;
-        uint256 cygPerBlock;
-        uint256 totalRewards;
-        uint256 totalClaimed;
-        uint256 start;
-        uint256 end;
-    }
-
-    /**
-     *  @custom:struct ShuttleInfo Info of each borrowable
-     *  @custom:member active Whether the pool is active or not
-     *  @custom:member shuttleId The ID for this shuttle to identify in hangar18
-     *  @custom:member totalShares The total number of shares held in the pool
-     *  @custom:member accRewardPerShare The accumulated reward per share
-     *  @custom:member lastRewardTime The timestamp of the last reward distribution
-     *  @custom:member allocPoint The allocation points of the pool
-     */
-    struct ShuttleInfo {
-        bool active;
-        uint256 shuttleId;
-        address borrowable;
-        address collateral;
-        uint256 totalShares;
-        uint256 accRewardPerShare;
-        uint256 lastRewardTime;
-        uint256 allocPoint;
-        IBonusRewarder bonusRewarder;
-        uint256 pillarsId;
-    }
-
-    /**
-     *  @custom:struct UserInfo Shares and rewards paid to each user
-     *  @custom:member shares The number of shares held by the user
-     *  @custom:member rewardDebt The amount of reward debt the user has accrued
-     */
-    struct UserInfo {
-        uint256 shares;
-        int256 rewardDebt;
-    }
-
-    /**
      *  @notice Accounting precision for rewards per share
      */
     uint256 private constant ACC_PRECISION = 1e24;
 
     /**
-     *  @notice Can never mint more than this per block
-     */
-    uint256 private constant MAX_CYG_PER_BLOCK = 0.475e18; // Only used in constructor
-
-    /**
-     *  @notice Total pools receiving CYG rewards
+     *  @notice Total pools receiving CYG rewards - This is different to the hangar18 shuttles. In Hangar18
+     *          1 shuttle contains a borrowable and collateral. In this contract each hangar18 shuttle is divided
+     *          into 2 shuttles to separate between lender and borrower rewards, and each shuttle has a unique
+     *          `pillarsId`.
      */
     ShuttleInfo[] private allShuttles;
 
@@ -187,7 +135,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @notice For lender rewards, then collateral is the Zero Address.
      *  @inheritdoc IPillarsOfCreation
      */
-    mapping(address => mapping(address => ShuttleInfo)) public getShuttleInfo; // borrowable -> collateral = Shuttle
+    mapping(address => mapping(address => ShuttleInfo)) public override getShuttleInfo; // borrowable -> collateral = Shuttle
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -440,6 +388,17 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
+    function calculateEpochRewards(uint256 epoch, uint256 totalRewards) public pure override returns (uint256 rewards) {
+        // Get cyg per block for the epoch
+        uint256 _cygPerBlock = calculateCygPerBlock(epoch, totalRewards);
+
+        // Return total CYG in the epoch
+        return _cygPerBlock * BLOCKS_PER_EPOCH;
+    }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     */
     function emissionsCurve(uint256 epoch) public pure override returns (uint) {
         // Create the emissions curve based on the reduction factor and epoch
         uint256 oneMinusReductionFactor = 1e18 - REDUCTION_FACTOR_PER_EPOCH;
@@ -459,24 +418,20 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     }
 
     /**
-     *  @inheritdoc IPillarsOfCreation
-     */
-    function calculateEpochRewards(uint256 epoch, uint256 totalRewards) public pure override returns (uint256 rewards) {
-        // Get cyg per block for the epoch
-        uint256 _cygPerBlock = calculateCygPerBlock(epoch, totalRewards);
-
-        // Return total CYG in the epoch
-        return _cygPerBlock * BLOCKS_PER_EPOCH;
-    }
-
-    /**
-     *  @notice Same claculation as in line 64. We calculate emissions at epoch 0 and then adjust the rewards by reduction 
-     *          factor for gas savings (instead of doing a for loop within a for loop)
+     *  @notice Same claculation as in line 64. We calculate emissions at epoch 0 and then adjust the rewards by reduction
+     *          factor for gas savings.
      *  @inheritdoc IPillarsOfCreation
      */
     function calculateCygPerBlock(uint256 epoch, uint256 totalRewards) public pure override returns (uint256 rewardRate) {
-        // Calculate emissions curve at epoch 0 - This will calculate the initial emissions curve at epoch `i`
-        // given a reduction factor and total epochs
+        // Calculate emissions curve at epoch 0 - This is what gives the slope of the curve at each epoch, given
+        // total epochs and a reduction factor:
+        // rewards_at_epoch_0 = (total_cyg_rewards * reduction_factor) / emissions_curve
+        //                    = (1750000 * 0.02) / 0.867380
+        //                    = 40351.38
+        //
+        // From here we reduce 2% of the total rewards each epoch:
+        // rewards_at_epoch_1 = 40351.38 * 0.98 = 39544.35
+        // rewards_at_epoch_2 = 39544.35 * 0.98 = 38753.47, etc.
         uint256 emissionsAt0 = emissionsCurve(0);
 
         // Get rewards for epoch 0
@@ -1449,10 +1404,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Calculate the cygPerBlock for the DAO
         cygPerBlockDAO = calculateCygPerBlock(0, totalCygDAO);
-
-        /// @custom:error CygPerBlockExceedsLimit Avoid setting above limit
-        if (cygPerBlockRewards > MAX_CYG_PER_BLOCK || cygPerBlockDAO > MAX_CYG_PER_BLOCK)
-            revert PillarsOfCreation__CygPerBlockExceedsLimit();
 
         // Current timestamp
         uint256 _birth = block.timestamp;
