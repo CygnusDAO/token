@@ -283,6 +283,46 @@ interface IPillarsOfCreation {
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
 
     /**
+     *  @return Human readable name for this rewarder
+     */
+    function name() external view returns (string memory);
+
+    /**
+     *  @return Version of the rewarder
+     */
+    function version() external pure returns (string memory);
+
+    /**
+     *  @return The reduction factor per epoch of `cygPerBlock` (each epoch rewards reduce by this factor)
+     */
+    function REDUCTION_FACTOR_PER_EPOCH() external pure returns (uint256);
+
+    /**
+     *  @return Address of hangar18 in this chain
+     */
+    function hangar18() external view returns (IHangar18);
+
+    /**
+     *  @return Unix timestamp representing the time of contract deployment
+     */
+    function birth() external view returns (uint256);
+
+    /**
+     *  @return Unix timestamp representing the time of contract destruction
+     */
+    function death() external view returns (uint256);
+
+    /**
+     *  @return The address of the CYG ERC20 Token
+     */
+    function cygToken() external view returns (address);
+
+    /**
+     *  @return Total allocation points across all pools
+     */
+    function totalAllocPoint() external view returns (uint256);
+
+    /**
      *  @notice Mapping to keep track of PoolInfo for each borrowable asset
      *  @param borrowable The address of the Cygnus Borrow contract
      *  @return active Whether the pool has been initialized or not (can only be set once)
@@ -323,12 +363,12 @@ interface IPillarsOfCreation {
     ) external view returns (uint256 epoch, uint256 rewardRate, uint256 totalRewards, uint256 totalClaimed, uint256 start, uint256 end);
 
     /**
-     *  @return Get the total amount of pools we have initialized
+     *  @return The total amount of pools we have initialized
      */
     function shuttlesLength() external view returns (uint256);
 
     /**
-     *  @return SECONDS_PER_YEAR Constant variable representing the number of seconds in a year
+     *  @return Constant variable representing the number of seconds in a year (not taking into account leap years)
      */
     function SECONDS_PER_YEAR() external pure returns (uint256);
 
@@ -338,62 +378,22 @@ interface IPillarsOfCreation {
     function DURATION() external pure returns (uint256);
 
     /**
-     *  @return TOTAL_EPOCHS The total number of epochs.
+     *  @return The total number of epochs.
      */
     function TOTAL_EPOCHS() external pure returns (uint256);
 
     /**
-     *  @return BLOCKS_PER_EPOCH The duration of each epoch.
+     *  @return The duration of each epoch.
      */
     function BLOCKS_PER_EPOCH() external pure returns (uint256);
 
     /**
-     *  @return Human readable name for this rewarder
-     */
-    function name() external view returns (string memory);
-
-    /**
-     *  @return Version of the rewarder
-     */
-    function version() external pure returns (string memory);
-
-    /**
-     *  @return REDUCTION_FACTOR_PER_EPOCH The reduction factor per epoch (945 / 1000 = 5.5%).
-     */
-    function REDUCTION_FACTOR_PER_EPOCH() external pure returns (uint256);
-
-    /**
-     *  @return hangar18 Address of hangar18 in this chain
-     */
-    function hangar18() external view returns (IHangar18);
-
-    /**
-     *  @return birth Unix timestamp representing the time of contract deployment
-     */
-    function birth() external view returns (uint256);
-
-    /**
-     *  @return death Unix timestamp representing the time of contract destruction
-     */
-    function death() external view returns (uint256);
-
-    /**
-     *  @return cygToken The address of the CYG ERC20 Token
-     */
-    function cygToken() external view returns (address);
-
-    /**
-     *  @return totalAllocPoint Total allocation points across all pools
-     */
-    function totalAllocPoint() external view returns (uint256);
-
-    /**
-     *  @return lastEpochTime The timestamp of the end of the last epoch.
+     *  @return The timestamp of the end of the last epoch.
      */
     function lastEpochTime() external view returns (uint256);
 
     /**
-     *  @return totalCygClaimed Total rewards given out by this contract up to this point.
+     *  @return Total rewards given out by this contract up to this point.
      */
     function totalCygClaimed() external view returns (uint256);
 
@@ -401,12 +401,12 @@ interface IPillarsOfCreation {
      *  @dev Calculates the emission curve for CYG emissions.
      *
      *  @param epoch The epoch we are calculating the curve for
-     *  @return emissionsCurve The CYG emissions curve at `epoch`
+     *  @return The CYG emissions curve at `epoch`
      */
     function emissionsCurve(uint256 epoch) external pure returns (uint256);
 
     /**
-     *  @return getBlockTimestamp The current block timestamp.
+     *  @return The current block timestamp.
      */
     function getBlockTimestamp() external view returns (uint256);
 
@@ -417,22 +417,22 @@ interface IPillarsOfCreation {
     function getCurrentEpoch() external view returns (uint256);
 
     /**
-     *  @return currentEpochRewards The current epoch rewards for the DAO as per the emissions curve
+     *  @return The current epoch rewards for the DAO as per the emissions curve
      */
     function currentEpochRewardsDAO() external view returns (uint256);
 
     /**
-     *  @return currentEpochRewards The current epoch rewards for borrowers/lenders as per the emissions curve
+     *  @return The current epoch rewards for borrowers/lenders as per the emissions curve
      */
     function currentEpochRewards() external view returns (uint256);
 
     /**
-     *  @return previousEpochRewards The previous epoch rewards as per the emissions curve
+     *  @return The previous epoch rewards as per the emissions curve
      */
     function previousEpochRewards() external view returns (uint256);
 
     /**
-     *  @return nextEpochRewards The amount of rewards to be released in the next epoch.
+     *  @return The amount of rewards to be released in the next epoch.
      */
     function nextEpochRewards() external view returns (uint256);
 
@@ -458,37 +458,37 @@ interface IPillarsOfCreation {
     function calculateEpochRewards(uint256 epoch, uint256 totalRewards) external view returns (uint256);
 
     /**
-     *  @return doomswitch Whether the doom which is enabled or not
+     *  @return Whether the doom which is enabled or not
      */
     function doomswitch() external view returns (bool);
 
     /**
-     *  @return totalCygRewards The total amount of CYG tokens to be distributed to borrowers and lenders by `death` timestamp
+     *  @return The total amount of CYG tokens to be distributed to borrowers and lenders by `death` timestamp
      */
     function totalCygRewards() external view returns (uint256);
 
     /**
-     *  @return totalCygDAO The total amount of CYG to be distributed to the DAO by the end of this contract's lifetime
+     *  @return The total amount of CYG to be distributed to the DAO by the end of this contract's lifetime
      */
     function totalCygDAO() external view returns (uint256);
 
     /**
-     *  @return cygPerBlockRewards The amount of CYG this contract gives out to per block
+     *  @return The amount of CYG this contract gives out to per block
      */
     function cygPerBlockRewards() external view returns (uint256);
 
     /**
-     *  @return cygPerBlockDAO The current cygPerBlock for the dao
+     *  @return The current cygPerBlock for the dao
      */
     function cygPerBlockDAO() external view returns (uint256);
 
     /**
-     *  @return lastDripDAO The timestamp of last DAO drip
+     *  @return The timestamp of last DAO drip
      */
     function lastDripDAO() external view returns (uint256);
 
     /**
-     *  @return artificer The address of the artificer, capable of manipulation individual pool rewards
+     *  @return The address of the artificer, capable of manipulation individual pool rewards
      */
     function artificer() external view returns (address);
 
@@ -500,64 +500,64 @@ interface IPillarsOfCreation {
     // Simple view functions
 
     /**
-     * @return epochProgression The current epoch progression.
+     * @return The current epoch progression.
      */
     function epochProgression() external view returns (uint256);
 
     /**
-     * @return blocksThisEpoch The distance travelled in blocks this epoch.
+     * @return The distance travelled in blocks this epoch.
      */
     function blocksThisEpoch() external view returns (uint256);
 
     /**
-     *  @return epochRewardsPacing The pacing of rewards for the current epoch as a percentage
+     *  @return The pacing of rewards for the current epoch as a percentage
      */
     function epochRewardsPacing() external view returns (uint256);
 
     /**
-     *  @return timeUntilNextEpoch The time left until the next epoch starts.
+     *  @return The time left until the next epoch starts.
      */
     function untilNextEpoch() external view returns (uint256);
 
     /**
-     * @return totalProgression The total contract progression.
+     * @return The total contract progression.
      */
     function totalProgression() external view returns (uint256);
 
     /**
-     *  @return daysUntilNextEpoch Days until this epoch ends and the next epoch begins
+     *  @return Days until this epoch ends and the next epoch begins
      */
     function daysUntilNextEpoch() external view returns (uint256);
 
     /**
-     *  @return daysUntilSupernova The amount of days until this contract self-destructs
+     *  @return The amount of days until this contract self-destructs
      */
     function daysUntilSupernova() external view returns (uint256);
 
     /**
-     *  @return daysPassedThisEpoch How many days have passed since the star tof this epoch
+     *  @return How many days have passed since the star tof this epoch
      */
     function daysPassedThisEpoch() external view returns (uint256);
 
     /**
-     *  @dev Uses the library's `timestampToDateTime` function to avoid repeating ourselves
+     *  @notice Uses the library's `timestampToDateTime` function to avoid repeating ourselves
      */
     function timestampToDateTime(
         uint256 timestamp
     ) external pure returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
 
     /**
-     *  @dev Uses the library's `diffDays` function to avoid repeating ourselves
+     *  @notice Uses the library's `diffDays` function to avoid repeating ourselves
      */
     function diffDays(uint256 fromTimestamp, uint256 toTimestamp) external pure returns (uint256 result);
 
     /**
-     *  @dev Returns the datetime that this contract self destructs
+     *  @notice Returns the datetime that this contract self destructs
      */
     function dateSupernova() external view returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
 
     /**
-     *  @dev Returns the datetime this epoch ends and next epoch begins
+     *  @notice Returns the datetime this epoch ends and next epoch begins
      */
     function dateNextEpochStart()
         external
@@ -565,7 +565,7 @@ interface IPillarsOfCreation {
         returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
 
     /**
-     *  @dev  Returns the datetime the current epoch started
+     *  @notice  Returns the datetime the current epoch started
      */
     function dateCurrentEpochStart()
         external
@@ -573,7 +573,7 @@ interface IPillarsOfCreation {
         returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
 
     /**
-     *  @dev Returns the datetime the last epoch started
+     *  @notice Returns the datetime the last epoch started
      */
     function dateLastEpochStart()
         external
@@ -581,7 +581,7 @@ interface IPillarsOfCreation {
         returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
 
     /**
-     *  @dev Returns the datetime that `epoch` started
+     *  @notice Returns the datetime that `epoch` started
      *  @param epoch The epoch number to get the date time of
      */
     function dateEpochStart(
@@ -589,7 +589,7 @@ interface IPillarsOfCreation {
     ) external view returns (uint256 year, uint256 month, uint256 day, uint256 hour, uint256 minute, uint256 second);
 
     /**
-     *  @dev Returns the datetime that `epoch` ends
+     *  @notice Returns the datetime that `epoch` ends
      *  @param epoch The epoch number to get the date time of
      */
     function dateEpochEnd(
