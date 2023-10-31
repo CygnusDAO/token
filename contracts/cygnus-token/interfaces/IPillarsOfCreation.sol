@@ -774,38 +774,35 @@ interface IPillarsOfCreation {
      *  -------------------------------------------------------------------------------------------------------  */
 
     /**
-     *  @notice Admin 👽
      *  @notice Sets the artificer, capable of adjusting rewards
      *
      *  @param _artificer The address of the new artificer contract
      *
-     *  @custom:security only-admin
+     *  @custom:security only-admin 👽
      */
     function setArtificer(address _artificer) external;
 
     /**
-     *  @notice Admin 👽
      *  @notice Set the doom switch - Cannot be turned off!
-     *  @custom:security only-admin
+     *
+     *  @custom:security only-admin 👽
      *
      */
     function setDoomswitch() external;
 
     /**
-     *  @notice Admin 👽
-     *  @notice Recovers any ERC20 token accidentally sent to this contract, sent to msg.sender
+     *  @notice Sweeps any erc20 token that was incorrectly sent to this contract
      *
      *  @param token The address of the token we are recovering
      *
-     *  @custom:security only-admin
+     *  @custom:security only-admin 👽
      */
     function sweepToken(address token) external;
 
     /**
-     *  @notice Admin 👽
-     *  @notice Sweeps native
+     *  @notice Sweeps native that was incorrectly sent to this contract
      *
-     *  @custom:security only-admin
+     *  @custom:security only-admin 👽
      */
     function sweepNative() external;
 
@@ -815,6 +812,8 @@ interface IPillarsOfCreation {
 
     /**
      *  @notice Initializes the contract
+     *
+     *  @custom:security only-admin 👽
      */
     function initializePillars() external;
 }
