@@ -51,6 +51,8 @@ import {IHangar18} from "./interfaces/core/IHangar18.sol";
 import {IERC20} from "./interfaces/core/IERC20.sol";
 import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
 
+// TODO FIX TIME
+
 /**
  *  @notice The only contract capable of minting the CYG token. The CYG token is divided between the DAO and lenders
  *          or borrowers of the Cygnus protocol.
@@ -122,7 +124,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *          into 2 shuttles to separate between lender and borrower rewards, and each shuttle has a unique
      *          `pillarsId`.
      */
-    ShuttleInfo[] private allShuttles;
+    ShuttleInfo[] private _allShuttles;
 
     /*  ─────────────────────────────────────────────── Public ────────────────────────────────────────────────  */
 
@@ -132,7 +134,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     mapping(uint256 => EpochInfo) public override getEpochInfo;
 
     /**
-     *  @notice For lender rewards, then collateral is the Zero Address.
+     *  @notice For lender rewards the collateral is address zero.
      *  @inheritdoc IPillarsOfCreation
      */
     mapping(address => mapping(address => ShuttleInfo)) public override getShuttleInfo; // borrowable -> collateral = Shuttle
@@ -162,12 +164,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public constant override DURATION = SECONDS_PER_YEAR * 8;
+    uint256 public constant override DURATION = SECONDS_PER_YEAR * 6;
 
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    uint256 public constant override TOTAL_EPOCHS = 208;
+    uint256 public constant override TOTAL_EPOCHS = 156;
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -338,6 +340,44 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     }
 
     /**
+     *  @notice Returns the latest pending CYG for `account` in this shuttle
+     *  @param borrowable The address of the CygnusBorrow contract (CygUSD)
+     *  @param collateral The address of the CygnusCollateral contract (CygLP)
+     *  @param account The address of the user
+     */
+    function _pendingCyg(address borrowable, address collateral, address account) private view returns (uint256 pending) {
+        // Load pool to memory
+        ShuttleInfo memory shuttle = getShuttleInfo[borrowable][collateral];
+
+        // Load user to memory
+        UserInfo memory user = getUserInfo[borrowable][collateral][account];
+
+        // Load the accumulated reward per share
+        uint256 accRewardPerShare = shuttle.accRewardPerShare;
+
+        // Load total shares from the pool
+        uint256 totalShares = shuttle.totalShares;
+
+        // Current timestamp
+        uint256 timestamp = getBlockTimestamp();
+
+        // If the current block's timestamp is after the last reward time and there are shares in the pool
+        if (timestamp > shuttle.lastRewardTime && totalShares != 0) {
+            // Calculate the time elapsed since the last reward
+            uint256 timeElapsed = timestamp - shuttle.lastRewardTime;
+
+            // Calculate the reward for the elapsed time, using the pool's allocation point and total allocation points
+            uint256 reward = (timeElapsed * cygPerBlockRewards * shuttle.allocPoint) / totalAllocPoint;
+
+            // Add the calculated reward per share to the accumulated reward per share
+            accRewardPerShare = accRewardPerShare + (reward * ACC_PRECISION) / totalShares;
+        }
+
+        // Calculate the pending reward for the user, based on their shares and the accumulated reward per share
+        pending = uint256(int256((user.shares * accRewardPerShare) / ACC_PRECISION) - (user.rewardDebt));
+    }
+
+    /**
      *  @dev The pillars consists of rewards for both borrowers and lenders in each shuttle. To separate between
      *       each rewards and alloc points we set different collaterals for each, but the same borrowable.
      *       If we are setting borrow rewards then we use the actual collateral of the borrowable, if we are setting
@@ -354,7 +394,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @inheritdoc IPillarsOfCreation
      */
     function shuttlesLength() public view override returns (uint256) {
-        return allShuttles.length;
+        return _allShuttles.length;
     }
 
     /**
@@ -439,45 +479,18 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         rewardRate = rewards / BLOCKS_PER_EPOCH;
     }
 
-    /**
-     *  @notice Returns the latest pending CYG for `account` in this shuttle
-     *  @param borrowable The address of the CygnusBorrow contract (CygUSD)
-     *  @param collateral The address of the CygnusCollateral contract (CygLP)
-     *  @param account The address of the user
-     */
-    function _pendingCyg(address borrowable, address collateral, address account) public view returns (uint256 pending) {
-        // Load pool to memory
-        ShuttleInfo memory shuttle = getShuttleInfo[borrowable][collateral];
-
-        // Load user to memory
-        UserInfo memory user = getUserInfo[borrowable][collateral][account];
-
-        // Load the accumulated reward per share
-        uint256 accRewardPerShare = shuttle.accRewardPerShare;
-
-        // Load total shares from the pool
-        uint256 totalShares = shuttle.totalShares;
-
-        // Current timestamp
-        uint256 timestamp = getBlockTimestamp();
-
-        // If the current block's timestamp is after the last reward time and there are shares in the pool
-        if (timestamp > shuttle.lastRewardTime && totalShares != 0) {
-            // Calculate the time elapsed since the last reward
-            uint256 timeElapsed = timestamp - shuttle.lastRewardTime;
-
-            // Calculate the reward for the elapsed time, using the pool's allocation point and total allocation points
-            uint256 reward = (timeElapsed * cygPerBlockRewards * shuttle.allocPoint) / totalAllocPoint;
-
-            // Add the calculated reward per share to the accumulated reward per share
-            accRewardPerShare = accRewardPerShare + (reward * ACC_PRECISION) / totalShares;
-        }
-
-        // Calculate the pending reward for the user, based on their shares and the accumulated reward per share
-        pending = uint256(int256((user.shares * accRewardPerShare) / ACC_PRECISION) - (user.rewardDebt));
-    }
-
     /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
+
+    /**
+     *  @notice Get the shuttle by Pillars ID from the `_allShuttles` array. The shuttles differ from Hangar18's
+     *          allShuttles array as for every shuttle ID there are 2 pillar IDs (one pillars for borrowers and
+     *          one for lenders). This reads individual shuttle for either borrowers or lenders, and not by the
+     *          factory's shuttle ID.
+     */
+    function allShuttles(uint256 pillarsId) external view returns (ShuttleInfo memory) {
+        // Read from array
+        return _allShuttles[pillarsId];
+    }
 
     /**
      *  @notice Get the shuttle by ID (not the same as hangar18 `allShuttles`)
@@ -496,17 +509,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    function pendingCygDAO() external view override returns (uint256 pending) {
-        // Calculate time since last dao claim
-        uint256 currentTime = block.timestamp;
-
-        // Cyg accrued for the DAO
-        return (currentTime - lastDripDAO) * cygPerBlockDAO;
-    }
-
-    /**
-     *  @inheritdoc IPillarsOfCreation
-     */
     function pendingCyg(address borrowable, address account, bool borrowRewards) external view override returns (uint256 pending) {
         // Get collateral (lender rewards is the zero address, borrow rewards we get the borrowable's collateral)
         address collateral = _isBorrowRewards(borrowable, borrowRewards);
@@ -520,7 +522,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      */
     function pendingCygSingle(address account, bool borrowRewards) external view returns (uint256 pending) {
         // Gas savings
-        ShuttleInfo[] memory shuttles = allShuttles;
+        ShuttleInfo[] memory shuttles = _allShuttles;
 
         // Length
         uint256 totalPools = shuttles.length;
@@ -546,7 +548,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      */
     function pendingCygAll(address account) external view returns (uint256 pending) {
         // Gas savings
-        ShuttleInfo[] memory shuttles = allShuttles;
+        ShuttleInfo[] memory shuttles = _allShuttles;
 
         // Length
         uint256 totalShuttles = shuttles.length;
@@ -573,6 +575,17 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Return bonus rewards if any
         return shuttle.bonusRewarder.pendingReward(borrowable, collateral, account);
+    }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     */
+    function pendingCygDAO() external view override returns (uint256 pending) {
+        // Calculate time since last dao claim
+        uint256 currentTime = block.timestamp;
+
+        // Cyg accrued for the DAO
+        return (currentTime - lastDripDAO) * cygPerBlockDAO;
     }
 
     /**
@@ -999,7 +1012,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      */
     function _accelerateTheUniverse() private {
         // Gas savings
-        ShuttleInfo[] memory shuttles = allShuttles;
+        ShuttleInfo[] memory shuttles = _allShuttles;
 
         // Length
         uint256 totalShuttles = shuttles.length;
@@ -1090,8 +1103,8 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
     /**
      *  @notice Main entry point into the Pillars contract to track borrowers and lenders.
-     *  @notice Rewards are tracked only from borrowables. For borrowers, rewards are updated after any borrow, 
-     *          repay or liquidation (via the `_updateBorrow` function). For lenders, rewards are updated after 
+     *  @notice Rewards are tracked only from borrowables. For borrowers, rewards are updated after any borrow,
+     *          repay or liquidation (via the `_updateBorrow` function). For lenders, rewards are updated after
      *          any CygUSD mint, burn or transfer (via the `_afterTokenTransfer` function).
      *  @inheritdoc IPillarsOfCreation
      */
@@ -1159,30 +1172,9 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @inheritdoc IPillarsOfCreation
      *  @custom:security non-reentrant
      */
-    function collectAll(address to) external override nonReentrant advance returns (uint256 cygAmount) {
-        // Gas savings
-        ShuttleInfo[] memory shuttles = allShuttles;
-
-        // Length
-        uint256 totalPools = shuttles.length;
-
-        // Loop through each shuttle
-        for (uint256 i = 0; i < totalPools; i++) {
-            // Collect lend rewards
-            cygAmount += _collect(shuttles[i].borrowable, shuttles[i].collateral, to);
-        }
-
-        /// @custom:event CollectAll
-        emit CollectAll(totalPools, cygAmount);
-    }
-
-    /**
-     *  @inheritdoc IPillarsOfCreation
-     *  @custom:security non-reentrant
-     */
     function collectAllSingle(address to, bool borrowRewards) external nonReentrant advance returns (uint256 cygAmount) {
         // Gas savings
-        ShuttleInfo[] memory shuttles = allShuttles;
+        ShuttleInfo[] memory shuttles = _allShuttles;
 
         // Length
         uint256 totalPools = shuttles.length;
@@ -1210,6 +1202,27 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @inheritdoc IPillarsOfCreation
      *  @custom:security non-reentrant
      */
+    function collectAll(address to) external override nonReentrant advance returns (uint256 cygAmount) {
+        // Gas savings
+        ShuttleInfo[] memory shuttles = _allShuttles;
+
+        // Length
+        uint256 totalPools = shuttles.length;
+
+        // Loop through each shuttle
+        for (uint256 i = 0; i < totalPools; i++) {
+            // Collect lend rewards
+            cygAmount += _collect(shuttles[i].borrowable, shuttles[i].collateral, to);
+        }
+
+        /// @custom:event CollectAll
+        emit CollectAll(totalPools, cygAmount);
+    }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     *  @custom:security non-reentrant
+     */
     function updateShuttle(address borrowable, bool borrowRewards) external override nonReentrant {
         // Get collateral (lender rewards is the zero address, borrow rewards we get the borrowable's collateral)
         address collateral = _isBorrowRewards(borrowable, borrowRewards);
@@ -1220,6 +1233,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         /// @custom:event UpdateShuttle
         emit UpdateShuttle(borrowable, collateral, msg.sender, block.timestamp, getCurrentEpoch());
     }
+
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     *  @custom:security non-reentrant
+     */
+    function advanceEpoch() external override nonReentrant advance {}
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -1259,39 +1278,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @inheritdoc IPillarsOfCreation
      *  @custom:security only-artificer-or-admin 🛠️
      */
-    function adjustRewards(address borrowable, uint256 allocPoint, bool borrowRewards) external override advance {
-        // Check if artificer is enabled, else check admin
-        _checkArtificer();
-
-        // Get collateral (lending rewards use address(0) as collateral)
-        address collateral = borrowRewards ? ICygnusTerminal(borrowable).collateral() : address(0);
-
-        // Load rewards
-        ShuttleInfo storage shuttle = getShuttleInfo[borrowable][collateral];
-
-        /// @custom:error ShuttleAlreadyInitialized Avoid initializing twice
-        if (!shuttle.active) revert PillarsOfCreation__ShuttleNotInitialized();
-
-        // Old alloc
-        uint256 oldAlloc = shuttle.allocPoint;
-
-        // Update the total allocation points (lender rewards have already been set, or else we revert)
-        totalAllocPoint = (totalAllocPoint - oldAlloc) + allocPoint;
-
-        // Assign new points
-        shuttle.allocPoint = allocPoint;
-
-        // Update pool in array
-        allShuttles[shuttle.pillarsId].allocPoint = allocPoint;
-
-        /// @custom:event NewShuttleAllocPoint
-        emit NewShuttleAllocPoint(borrowable, collateral, oldAlloc, allocPoint);
-    }
-
-    /**
-     *  @inheritdoc IPillarsOfCreation
-     *  @custom:security only-artificer-or-admin 🛠️
-     */
     function setShuttleRewards(address borrowable, uint256 allocPoint, bool borrowRewards) external override advance {
         // Check if artificer is enabled, else check admin
         _checkArtificer();
@@ -1316,22 +1302,53 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Assign core contracts
         shuttle.borrowable = borrowable;
-        shuttle.collateral = collateral; // Lender shuttles use zero address as collateral
+        shuttle.collateral = collateral; // _isBorrowRewards returns address zero for lender rewards
 
         // Lending pool ID - Shared by borrow and lending rewards
         shuttle.shuttleId = ICygnusTerminal(borrowable).shuttleId();
 
         // Unique reward pool ID
-        shuttle.pillarsId = allShuttles.length;
+        shuttle.pillarsId = _allShuttles.length;
 
         // Push to shuttles array
-        allShuttles.push(shuttle);
+        _allShuttles.push(shuttle);
 
         /// @custom:event NewShuttleRewards
         emit NewShuttleRewards(borrowable, collateral, totalAllocPoint, allocPoint);
     }
 
-    // TODO: borrowRewards is necesary? I thought only borrowers receive?
+    /**
+     *  @inheritdoc IPillarsOfCreation
+     *  @custom:security only-artificer-or-admin 🛠️
+     */
+    function adjustRewards(address borrowable, uint256 allocPoint, bool borrowRewards) external override advance {
+        // Check if artificer is enabled, else check admin
+        _checkArtificer();
+
+        // Get collateral (lending rewards use address(0) as collateral)
+        address collateral = borrowRewards ? ICygnusTerminal(borrowable).collateral() : address(0);
+
+        // Load rewards
+        ShuttleInfo storage shuttle = getShuttleInfo[borrowable][collateral];
+
+        /// @custom:error ShuttleAlreadyInitialized Avoid initializing twice
+        if (!shuttle.active) revert PillarsOfCreation__ShuttleNotInitialized();
+
+        // Old alloc
+        uint256 oldAlloc = shuttle.allocPoint;
+
+        // Update the total allocation points (lender rewards have already been set, or else we revert)
+        totalAllocPoint = (totalAllocPoint - oldAlloc) + allocPoint;
+
+        // Assign new points
+        shuttle.allocPoint = allocPoint;
+
+        // Update pool in array
+        _allShuttles[shuttle.pillarsId].allocPoint = allocPoint;
+
+        /// @custom:event NewShuttleAllocPoint
+        emit NewShuttleAllocPoint(borrowable, collateral, oldAlloc, allocPoint);
+    }
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -1464,10 +1481,10 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Calculate the cygPerBlock for the DAO
         cygPerBlockDAO = calculateCygPerBlock(0, totalCygDAO);
 
-        // Current timestamp
+        // Gas savings
         uint256 _birth = block.timestamp;
 
-        // Timestamp of deployment
+        // Birth of pillars
         birth = _birth;
 
         // Timestamp of when the contract self-destructs
@@ -1476,7 +1493,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Start epoch
         lastEpochTime = _birth;
 
-        // Store the last drip as deployment time
+        // Store the last drip as pillars initialized time
         lastDripDAO = _birth;
 
         // Store epoch
