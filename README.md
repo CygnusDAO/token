@@ -19,7 +19,7 @@ where reductionFactor is the percentage by which the rewards are reduced every e
 
 # Yearly Rewards
 
-The total CYG on each chain is 2,500,000. 70% is for borrowers and lenders (1,750,000 CYG) and 20% is for the DAO (500,000). With 100 epochs and a duration of 8 years, the total CYG emission rate is:
+The total CYG on each chain is 5,000,000 M to be minted over 6 years, with most rewards (70%) going to lenders/borrowers and the rest to the DAO, where each epoch emissions reduce by 1%:
 
                        |
                   800k |_______.
