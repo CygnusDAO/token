@@ -51,8 +51,6 @@ import {IHangar18} from "./interfaces/core/IHangar18.sol";
 import {IERC20} from "./interfaces/core/IERC20.sol";
 import {ICygnusTerminal} from "./interfaces/core/ICygnusTerminal.sol";
 
-// TODO FIX TIME
-
 /**
  *  @notice The only contract capable of minting the CYG token. The CYG token is divided between the DAO and lenders
  *          or borrowers of the Cygnus protocol.
@@ -119,6 +117,11 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     uint256 private constant ACC_PRECISION = 1e24;
 
     /**
+     *  @notice Keep track internally of the current epoch
+     */
+    uint256 private _currentEpoch;
+
+    /**
      *  @notice Total pools receiving CYG rewards - This is different to the hangar18 shuttles. In Hangar18
      *          1 shuttle contains a borrowable and collateral. In this contract each hangar18 shuttle is divided
      *          into 2 shuttles to separate between lender and borrower rewards, and each shuttle has a unique
@@ -152,7 +155,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    string public constant override version = "1.0.0";
+    string public constant override version = "2.0.0";
 
     // Pillars settings //
 
@@ -401,22 +404,14 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @inheritdoc IPillarsOfCreation
      */
     function getBlockTimestamp() public view override returns (uint256) {
-        // Return this block's timestamp
         return block.timestamp;
     }
 
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    function getCurrentEpoch() public view override returns (uint256 currentEpoch) {
-        // Get the current timestamp
-        uint256 currentTime = getBlockTimestamp();
-
-        // Contract has expired
-        if (currentTime >= death) return TOTAL_EPOCHS;
-
-        // Current epoch
-        currentEpoch = (currentTime - birth) / BLOCKS_PER_EPOCH;
+    function getCurrentEpoch() public view override returns (uint256) {
+        return _currentEpoch;
     }
 
     /**
@@ -433,7 +428,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @inheritdoc IPillarsOfCreation
      */
-    function emissionsCurve(uint256 epoch) public pure override returns (uint) {
+    function emissionsCurve(uint256 epoch) public pure override returns (uint256) {
         // Create the emissions curve based on the reduction factor and epoch
         uint256 oneMinusReductionFactor = 1e18 - REDUCTION_FACTOR_PER_EPOCH;
 
@@ -444,8 +439,12 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         uint256 result = 1e18;
 
         // Loop through total epochs left
-        for (uint i = 0; i < totalEpochs; i++) {
+        for (uint256 i = 0; i < totalEpochs; ) {
             result = result.mulWad(oneMinusReductionFactor);
+
+            unchecked {
+                ++i;
+            }
         }
 
         return 1e18 - result;
@@ -471,8 +470,11 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         uint256 rewards = totalRewards.fullMulDiv(REDUCTION_FACTOR_PER_EPOCH, emissionsAt0);
 
         // Get total CYG rewards for `epoch`
-        for (uint i = 0; i < epoch; i++) {
+        for (uint256 i = 0; i < epoch; ) {
             rewards = rewards.mulWad(1e18 - REDUCTION_FACTOR_PER_EPOCH);
+            unchecked {
+                ++i;
+            }
         }
 
         // Return the CYG per block rate at `epoch` given `totalRewards`
@@ -610,6 +612,8 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     }
 
     // Simple view functions to get quickly
+
+    /// TODO
 
     /**
      *  @inheritdoc IPillarsOfCreation
@@ -878,21 +882,15 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @dev Internal function that destroys the contract and transfers remaining funds to the owner.
      */
     function _supernova() private {
-        // Get epoch, uses block.timestamp - keep this function separate to getCurrentEpoch for simplicity
-        uint256 epoch = getCurrentEpoch();
-
-        // Check if current epoch is less than total epochs
-        if (epoch < TOTAL_EPOCHS) return;
-
         // Assert we are doomed, can only be set my admin and cannot be turned off
         assert(doomswitch);
 
         /// @custom:event Supernova
-        emit Supernova(msg.sender, birth, death, epoch);
+        emit Supernova(msg.sender, birth, death, _currentEpoch);
 
         // Hail Satan! ʕ•ᴥ•ʔ
         //
-        // By now 8 years have passed and this contract would have minted exactly:
+        // By now 6 years have passed and this contract would have minted exactly:
         //
         //   totalCygRewards + totalCygRewardsDAO
         //
@@ -917,11 +915,11 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Update if we are at new epoch
         if (epochsPassed > 0) {
-            // Get this epoch
-            uint256 currentEpoch = getCurrentEpoch();
+            // Increase internal epoch first
+            _currentEpoch += 1;
 
-            // Check that contract is not expired
-            if (currentEpoch < TOTAL_EPOCHS) {
+            // Check that contract is not expired with new epoch
+            if (_currentEpoch < TOTAL_EPOCHS) {
                 // Store last epoch update
                 lastEpochTime = currentTime;
 
@@ -929,10 +927,10 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
                 uint256 oldCygPerBlock = cygPerBlockRewards;
 
                 // Store new cygPerBlock
-                cygPerBlockRewards = calculateCygPerBlock(currentEpoch, totalCygRewards);
+                cygPerBlockRewards = calculateCygPerBlock(_currentEpoch, totalCygRewards);
 
                 // Store this info once on each advance
-                EpochInfo storage epoch = getEpochInfo[currentEpoch];
+                EpochInfo storage epoch = getEpochInfo[_currentEpoch];
 
                 // Store start time
                 epoch.start = currentTime;
@@ -941,7 +939,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
                 epoch.end = currentTime + BLOCKS_PER_EPOCH;
 
                 // Store current epoch number
-                epoch.epoch = currentEpoch;
+                epoch.epoch = _currentEpoch;
 
                 // Store the `cygPerBlock` of this epoch
                 epoch.cygPerBlock = cygPerBlockRewards;
@@ -953,10 +951,10 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
                 epoch.totalClaimed = 0;
 
                 // Store the new cyg per block for the dao
-                cygPerBlockDAO = calculateCygPerBlock(currentEpoch, totalCygDAO);
+                cygPerBlockDAO = calculateCygPerBlock(_currentEpoch, totalCygDAO);
 
                 /// @custom:event NewEpoch
-                emit NewEpoch(currentEpoch - 1, currentEpoch, oldCygPerBlock, cygPerBlockRewards);
+                emit NewEpoch(_currentEpoch - 1, _currentEpoch, oldCygPerBlock, cygPerBlockRewards);
             }
             // If we have passed 1 epoch and the current epoch is >= TOTAL EPOCHS then we self-destruct contract
             else _supernova();
@@ -1018,7 +1016,14 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         uint256 totalShuttles = shuttles.length;
 
         // Loop through each shuttle and update all pools - Doesn't emit event
-        for (uint256 i = 0; i < totalShuttles; i++) _updateShuttle(shuttles[i].borrowable, shuttles[i].collateral);
+        for (uint256 i = 0; i < totalShuttles; ) {
+            // Update
+            _updateShuttle(shuttles[i].borrowable, shuttles[i].collateral);
+
+            unchecked {
+                ++i;
+            }
+        }
 
         // Drip CYG to DAO reserves
         _dripCygDAO();
@@ -1033,24 +1038,24 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
      *  @param to The address to send msg.sender's rewards to
      */
     function _collect(address borrowable, address collateral, address to) private returns (uint256 cygAmount) {
-        // Update the pool to ensure the user's reward calculation is up-to-date.
+        // Update the pool before collect
         ShuttleInfo storage shuttle = _updateShuttle(borrowable, collateral);
 
-        // Retrieve the user's info for the specified borrowable address.
+        // Get user from storage for this borrowable and collateral
         UserInfo storage user = getUserInfo[borrowable][collateral][msg.sender];
 
         // Avoid stack too deep
         {
-            // Calculate the user's accumulated reward based on their shares and the pool's accumulated reward per share.
+            // Calculate the user's accumulated reward based on their shares and the pool's accum reward
             int256 accumulatedReward = int256((user.shares * shuttle.accRewardPerShare) / ACC_PRECISION);
 
-            // Calculate the pending reward for the user by subtracting their stored reward debt from their accumulated reward.
+            // Owed cyg amount
             cygAmount = uint256(accumulatedReward - user.rewardDebt);
 
             // If no rewards then return and don't collect
             if (cygAmount == 0) return 0;
 
-            // Update the user's reward debt to reflect the current accumulated reward.
+            // Update the user's reward debt
             user.rewardDebt = accumulatedReward;
 
             // Check for bonus rewards
@@ -1059,15 +1064,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
                 shuttle.bonusRewarder.onReward(borrowable, collateral, msg.sender, to, cygAmount, user.shares);
             }
         }
-
-        // Get current epoch
-        uint256 currentEpoch = getCurrentEpoch();
-
-        // Update total claimed for this epoch
-        getEpochInfo[currentEpoch].totalClaimed += cygAmount;
-
-        // Check that total claimed this epoch is not above the max we can mint for this epoch
-        if (getEpochInfo[currentEpoch].totalClaimed > getEpochInfo[currentEpoch].totalRewards) revert("Exceeds Epoch Limit");
 
         // Mint new CYG
         IERC20(cygToken).mint(to, cygAmount);
@@ -1164,6 +1160,9 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Checks to see if there is any pending CYG to be collected and sends to user
         cygAmount = _collect(borrowable, collateral, to);
 
+        // Increase epoch claimed amount. We leave this out of internal `_collect` to save gas when claiming multiple
+        getEpochInfo[_currentEpoch].totalClaimed += cygAmount;
+
         /// @custom:event Collect
         emit Collect(borrowable, collateral, to, cygAmount);
     }
@@ -1194,6 +1193,9 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
             cygAmount += _collect(shuttles[i].borrowable, collateral, to);
         }
 
+        // Increase epoch claimed amount. We leave this out of internal `_collect` to save gas when claiming multiple
+        getEpochInfo[_currentEpoch].totalClaimed += cygAmount;
+
         /// @custom:event CollectAll
         emit CollectAllSingle(totalPools, cygAmount, borrowRewards);
     }
@@ -1210,10 +1212,17 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         uint256 totalPools = shuttles.length;
 
         // Loop through each shuttle
-        for (uint256 i = 0; i < totalPools; i++) {
+        for (uint256 i = 0; i < totalPools; ) {
             // Collect lend rewards
             cygAmount += _collect(shuttles[i].borrowable, shuttles[i].collateral, to);
+
+            unchecked {
+                ++i;
+            }
         }
+
+        // Increase epoch claimed amount. We leave this out of internal `_collect` to save gas when claiming multiple
+        getEpochInfo[_currentEpoch].totalClaimed += cygAmount;
 
         /// @custom:event CollectAll
         emit CollectAll(totalPools, cygAmount);
@@ -1265,6 +1274,9 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     function supernova() external override nonReentrant advance {
         // Manually updates all shuttles in the Pillars
         _accelerateTheUniverse();
+
+        // Check if current epoch is less than total epochs
+        if (_currentEpoch < TOTAL_EPOCHS) return;
 
         // Tries to self destruct the contract
         _supernova();
