@@ -1,3 +1,8 @@
+# Versions
+
+`1.0.0` - Was deployed on Polygon (PoS) and Arbitrum. Calculated epoch on the fly, causing the contract to be out of sync if no tx made it advance manually. (Oct 10 2023)
+`2.0.0` - Introduces a variable to keep track of epochs internally. Removes unneeded checks when claiming CYG and some gas optimizations. (Jan 10 2024)
+
 # CYG Token Rewarder
 
 The Pillars Of Creation is a contract that allows borrowers and lenders to collect CYG based on how much they have deposited at the core contracts.
