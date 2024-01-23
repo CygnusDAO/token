@@ -18,8 +18,10 @@
   },
   "dependencies": {
     "@anders-t/ethers-ledger": "^1.0.4",
+    "@layerzerolabs/solidity-examples": "^0.0.13",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
+    "@openzeppelin/contracts": "^4.9.0",
     "@paraswap/sdk": "^6.2.1",
     "@uniswap/permit2-sdk": "^1.2.0",
     "axios": "^1.4.0",

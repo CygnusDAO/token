@@ -1,10 +1,66 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/utils/Context.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "8a744dc1ffd2272b9919fac04f1d5bfd",
-      "sourceName": "contracts/cygnus-token/utils/Context.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/BonusRewarder.sol": {
+      "lastModificationDate": 1705971157244,
+      "contentHash": "4683522f2f643bd8b570f13c21889c67",
+      "sourceName": "contracts/cygnus-token/BonusRewarder.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IBonusRewarder.sol",
+        "./interfaces/core/IERC20.sol",
+        "./libraries/SafeTransferLib.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.17"
+      ],
+      "artifacts": [
+        "BonusRewarder"
+      ]
+    },
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/IBonusRewarder.sol": {
+      "lastModificationDate": 1705971157245,
+      "contentHash": "49a504d0b359238c24b380697684bc9c",
+      "sourceName": "contracts/cygnus-token/interfaces/IBonusRewarder.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -50,63 +106,11 @@
         ">=0.8.17"
       ],
       "artifacts": [
-        "Context"
+        "IBonusRewarder"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/utils/ReentrancyGuard.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "c43c7cedb2e74132f6a5e95fec23414f",
-      "sourceName": "contracts/cygnus-token/utils/ReentrancyGuard.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ReentrancyGuard"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/libraries/SafeTransferLib.sol": {
-      "lastModificationDate": 1687903440115,
+    "/home/sorrowlol/token/contracts/cygnus-token/libraries/SafeTransferLib.sol": {
+      "lastModificationDate": 1705971157246,
       "contentHash": "b307d015a799b7dbd165b6cbfd503312",
       "sourceName": "contracts/cygnus-token/libraries/SafeTransferLib.sol",
       "solcConfig": {
@@ -157,64 +161,9 @@
         "SafeTransferLib"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/IHangar18.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "663294bd86ee82efafb9df671f4426ab",
-      "sourceName": "contracts/cygnus-token/interfaces/core/IHangar18.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./IDenebOrbiter.sol",
-        "./IAlbireoOrbiter.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IHangar18"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/IERC20.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "f8ec2f4897583193aa4d9b5925c62f5c",
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/core/IERC20.sol": {
+      "lastModificationDate": 1705971157245,
+      "contentHash": "21e4a56036f19c740e7272f77ab2c4f1",
       "sourceName": "contracts/cygnus-token/interfaces/core/IERC20.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -264,324 +213,9 @@
         "IERC20"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/IDenebOrbiter.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "69a7b7b79c675b37879c9475ba4c3a36",
-      "sourceName": "contracts/cygnus-token/interfaces/core/IDenebOrbiter.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IDenebOrbiter"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/IAlbireoOrbiter.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "bd986ec66d850ec547bad63b9ecc4e87",
-      "sourceName": "contracts/cygnus-token/interfaces/core/IAlbireoOrbiter.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IAlbireoOrbiter"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/AggregatorV3Interface.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "bb4ec7c4a243dac4389b4d544ecbbb1d",
-      "sourceName": "contracts/cygnus-token/interfaces/core/AggregatorV3Interface.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.0"
-      ],
-      "artifacts": [
-        "AggregatorV3Interface"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/IOrbiter.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "0aa30cff9621b74efad1a3d4840df8ae",
-      "sourceName": "contracts/cygnus-token/interfaces/core/IOrbiter.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./IHangar18.sol",
-        "./ICygnusNebula.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IOrbiter"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/utils/Owned.sol": {
-      "lastModificationDate": 1686225015499,
-      "contentHash": "11fec455b72d2743b77d783d6017e1e9",
-      "sourceName": "contracts/cygnus-token/utils/Owned.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.0"
-      ],
-      "artifacts": [
-        "Owned"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/libraries/FixedPointMathLib.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "e9f924a057fa2807cbe646080b372f38",
-      "sourceName": "contracts/cygnus-token/libraries/FixedPointMathLib.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.4"
-      ],
-      "artifacts": [
-        "FixedPointMathLib"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/IERC20Permit.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "2edbfea19ef2db5b45e016978a2ab5d3",
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/core/IERC20Permit.sol": {
+      "lastModificationDate": 1705971157245,
+      "contentHash": "00b0bdd87820ca4db9e98ba67e6f219f",
       "sourceName": "contracts/cygnus-token/interfaces/core/IERC20Permit.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -633,9 +267,9 @@
         "IERC20Permit"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusTerminal.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "01bad7acdf25d4980fe32c7637e49795",
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/core/ICygnusTerminal.sol": {
+      "lastModificationDate": 1705971558005,
+      "contentHash": "7c0fdac6f557ffcdab3ba2352dca086a",
       "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusTerminal.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -678,10 +312,7 @@
         }
       },
       "imports": [
-        "./IERC20Permit.sol",
-        "./IHangar18.sol",
-        "./IAllowanceTransfer.sol",
-        "./ICygnusNebula.sol"
+        "./IERC20Permit.sol"
       ],
       "versionPragmas": [
         ">=0.8.17"
@@ -690,10 +321,72 @@
         "ICygnusTerminal"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/IAllowanceTransfer.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "9016212a60524924f59216bdcd0cf67e",
-      "sourceName": "contracts/cygnus-token/interfaces/core/IAllowanceTransfer.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/PillarsOfCreation.sol": {
+      "lastModificationDate": 1705980543514,
+      "contentHash": "4013afeca9877cbb7033e2fdaf2426aa",
+      "sourceName": "contracts/cygnus-token/PillarsOfCreation.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IPillarsOfCreation.sol",
+        "./utils/ReentrancyGuard.sol",
+        "./libraries/SafeTransferLib.sol",
+        "./libraries/FixedPointMathLib.sol",
+        "./libraries/DateTimeLib.sol",
+        "./interfaces/IBonusRewarder.sol",
+        "./interfaces/core/IHangar18.sol",
+        "./interfaces/core/IERC20.sol",
+        "./interfaces/core/ICygnusTerminal.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.17"
+      ],
+      "artifacts": [
+        "PillarsOfCreation"
+      ]
+    },
+    "/home/sorrowlol/token/contracts/cygnus-token/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1705971157246,
+      "contentHash": "c43c7cedb2e74132f6a5e95fec23414f",
+      "sourceName": "contracts/cygnus-token/utils/ReentrancyGuard.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -739,12 +432,223 @@
         ">=0.8.17"
       ],
       "artifacts": [
-        "IAllowanceTransfer"
+        "ReentrancyGuard"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/ICygnusDAOReserves.sol": {
-      "lastModificationDate": 1687903440107,
-      "contentHash": "89fac92a8fa5fbef62c52bf5e93b21cc",
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/IPillarsOfCreation.sol": {
+      "lastModificationDate": 1705980456262,
+      "contentHash": "be8c338fa9bbb09b386f1fefb1449524",
+      "sourceName": "contracts/cygnus-token/interfaces/IPillarsOfCreation.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./core/IHangar18.sol",
+        "./IBonusRewarder.sol"
+      ],
+      "versionPragmas": [
+        ">=0.8.17"
+      ],
+      "artifacts": [
+        "IPillarsOfCreation"
+      ]
+    },
+    "/home/sorrowlol/token/contracts/cygnus-token/libraries/FixedPointMathLib.sol": {
+      "lastModificationDate": 1705971157246,
+      "contentHash": "e9f924a057fa2807cbe646080b372f38",
+      "sourceName": "contracts/cygnus-token/libraries/FixedPointMathLib.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "FixedPointMathLib"
+      ]
+    },
+    "/home/sorrowlol/token/contracts/cygnus-token/libraries/DateTimeLib.sol": {
+      "lastModificationDate": 1705971157246,
+      "contentHash": "49eb3fa6351fc8440f7d0f2293ca0197",
+      "sourceName": "contracts/cygnus-token/libraries/DateTimeLib.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "DateTimeLib"
+      ]
+    },
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/core/IHangar18.sol": {
+      "lastModificationDate": 1705971157245,
+      "contentHash": "2d529109590b4728ecd1653fb5995009",
+      "sourceName": "contracts/cygnus-token/interfaces/core/IHangar18.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.17"
+      ],
+      "artifacts": [
+        "IHangar18"
+      ]
+    },
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/ICygnusDAOReserves.sol": {
+      "lastModificationDate": 1705971628284,
+      "contentHash": "e1c64492940b55176146bde3695db268",
       "sourceName": "contracts/cygnus-token/interfaces/ICygnusDAOReserves.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -796,9 +700,9 @@
         "ICygnusDAOReserves"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/CygnusDAOReserves.sol": {
-      "lastModificationDate": 1687904772446,
-      "contentHash": "d4b0e6e460eced517236deab3b8716f0",
+    "/home/sorrowlol/token/contracts/cygnus-token/CygnusDAOReserves.sol": {
+      "lastModificationDate": 1705971629443,
+      "contentHash": "4b46714f30babba899b2a27e1aefe26f",
       "sourceName": "contracts/cygnus-token/CygnusDAOReserves.sol",
       "solcConfig": {
         "version": "0.8.17",
@@ -846,8 +750,7 @@
         "./libraries/SafeTransferLib.sol",
         "./libraries/FixedPointMathLib.sol",
         "./interfaces/core/IHangar18.sol",
-        "./interfaces/core/ICygnusTerminal.sol",
-        "./interfaces/core/IERC20.sol"
+        "./interfaces/core/ICygnusTerminal.sol"
       ],
       "versionPragmas": [
         ">=0.8.17"
@@ -856,10 +759,10 @@
         "CygnusDAOReserves"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusCollateralControl.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "8e1c8d710e77c404f6323f6ec67de0a5",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusCollateralControl.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/TokenVesting.sol": {
+      "lastModificationDate": 1705971157245,
+      "contentHash": "a207501b21c454e8e6d40f396c649ed0",
+      "sourceName": "contracts/cygnus-token/TokenVesting.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -901,399 +804,22 @@
         }
       },
       "imports": [
-        "./ICygnusTerminal.sol"
+        "./interfaces/core/IERC20.sol",
+        "./utils/Owned.sol",
+        "./libraries/SafeTransferLib.sol",
+        "./utils/ReentrancyGuard.sol"
       ],
       "versionPragmas": [
         ">=0.8.17"
       ],
       "artifacts": [
-        "ICygnusCollateralControl"
+        "TokenVesting"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusCollateralModel.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "0a706459df02aa7ce66f4d8d1e14569a",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusCollateralModel.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./ICygnusCollateralControl.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusCollateralModel"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusCollateralVoid.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "2bbfbab7c8e85e1ea3aa43cf324c84c4",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusCollateralVoid.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./ICygnusCollateralModel.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusCollateralVoid"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusBorrowVoid.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "ab2d5bad06ab2f5e870550c072c25200",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusBorrowVoid.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./ICygnusBorrowModel.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusBorrowVoid"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusBorrowModel.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "ed05af6b802c6c04d313423aa31e2e15",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusBorrowModel.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./ICygnusBorrowControl.sol",
-        "./ICygnusComplexRewarder.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusBorrowModel"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusBorrowControl.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "c014e0bc64773c09448c93a680ef3fe9",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusBorrowControl.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./ICygnusTerminal.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusBorrowControl"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusBorrow.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "acb9657408e0b96b4b4400cb48cb6610",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusBorrow.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./ICygnusBorrowVoid.sol",
-        "./ICygnusTerminal.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusBorrow"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusCollateral.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "4b0c8fcd3dc1cfdb2f0325112a4c3696",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusCollateral.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./ICygnusCollateralVoid.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusCollateral"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/BorrowableVoid/ISonnePool.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "8f855cb02571019288f88790e20a67ef",
-      "sourceName": "contracts/cygnus-token/interfaces/core/BorrowableVoid/ISonnePool.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/utils/Owned.sol": {
+      "lastModificationDate": 1705971157246,
+      "contentHash": "11fec455b72d2743b77d783d6017e1e9",
+      "sourceName": "contracts/cygnus-token/utils/Owned.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -1336,432 +862,16 @@
       },
       "imports": [],
       "versionPragmas": [
-        ">=0.8.17"
+        ">=0.8.0"
       ],
       "artifacts": [
-        "ISonnePool"
+        "Owned"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/BorrowableVoid/IStakedDistributor.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "efc3f43f1a3a5aeb5ee6f5f9ce4c0649",
-      "sourceName": "contracts/cygnus-token/interfaces/core/BorrowableVoid/IStakedDistributor.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IStakedDistributor"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/BorrowableVoid/IUniTroller.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "85f2e3153fe2f9662256732e1879b5ca",
-      "sourceName": "contracts/cygnus-token/interfaces/core/BorrowableVoid/IUniTroller.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IUniTroller"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/CollateralVoid/IDexPair.sol": {
-      "lastModificationDate": 1686225104516,
-      "contentHash": "678eedbd5e94abf20663eca0746e5c5f",
-      "sourceName": "contracts/cygnus-token/interfaces/core/CollateralVoid/IDexPair.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IDexPair"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/CollateralVoid/IVeloGauge.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "4226253ed3c4a3481a441eabbe01e887",
-      "sourceName": "contracts/cygnus-token/interfaces/core/CollateralVoid/IVeloGauge.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IVeloGauge"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/CollateralVoid/IVeloVoter.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "c9f6b124eb206f0b9279dea9062079f3",
-      "sourceName": "contracts/cygnus-token/interfaces/core/CollateralVoid/IVeloVoter.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IVeloVoter"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/CollateralVoid/IWETH.sol": {
-      "lastModificationDate": 1686225104520,
-      "contentHash": "1a9c4f3a4775c8719221c006c0912fc5",
-      "sourceName": "contracts/cygnus-token/interfaces/core/CollateralVoid/IWETH.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "IWETH"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusAltairCall.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "736a6d1548fba23dfab98437783e3847",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusAltairCall.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusAltairCall"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusComplexRewarder.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "128969b1f296a04a27dd34e12a94aaae",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusComplexRewarder.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusComplexRewarder"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusNebula.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "17eda03ba8a603aa2df6b5ebcae3a178",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusNebula.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/CygnusDAO.sol": {
+      "lastModificationDate": 1705979589421,
+      "contentHash": "220f0342eb6933d83c62b818d631122f",
+      "sourceName": "contracts/cygnus-token/CygnusDAO.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -1803,74 +913,21 @@
         }
       },
       "imports": [
-        "./AggregatorV3Interface.sol",
-        "./IERC20.sol"
-      ],
-      "versionPragmas": [
-        "^0.8.17"
-      ],
-      "artifacts": [
-        "ICygnusNebula"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusVoid.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "40912e779d2959739ca3e65a96da6860",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusVoid.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./IHangar18.sol"
+        "@layerzerolabs/solidity-examples/contracts/token/oft/OFT.sol",
+        "./interfaces/ICygnusDAO.sol",
+        "./interfaces/IStarknetCore.sol"
       ],
       "versionPragmas": [
         ">=0.8.17"
       ],
       "artifacts": [
-        "ICygnusVoid"
+        "CygnusDAO"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/core/ICygnusNebulaRegistry.sol": {
-      "lastModificationDate": 1687903440111,
-      "contentHash": "566dac83fbae38ea6f27328667904022",
-      "sourceName": "contracts/cygnus-token/interfaces/core/ICygnusNebulaRegistry.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/ICygnusDAO.sol": {
+      "lastModificationDate": 1705979473854,
+      "contentHash": "2000f0cf7e5e3ce3df9ddeefb119169d",
+      "sourceName": "contracts/cygnus-token/interfaces/ICygnusDAO.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -1912,76 +969,20 @@
         }
       },
       "imports": [
-        "./AggregatorV3Interface.sol",
-        "./ICygnusNebula.sol",
-        "./IERC20.sol"
+        "@layerzerolabs/solidity-examples/contracts/token/oft/IOFT.sol",
+        "./IStarknetCore.sol"
       ],
       "versionPragmas": [
-        "^0.8.17"
+        ">=0.8.17"
       ],
       "artifacts": [
-        "ICygnusNebulaRegistry"
+        "ICygnusDAO"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/CygnusERC20.sol": {
-      "lastModificationDate": 1687903962777,
-      "contentHash": "76ff80771bc92dbe9484101f645b6da9",
-      "sourceName": "contracts/cygnus-token/CygnusERC20.sol",
-      "solcConfig": {
-        "version": "0.8.17",
-        "settings": {
-          "viaIR": true,
-          "optimizer": {
-            "enabled": true,
-            "runs": 1000000,
-            "details": {
-              "peephole": true,
-              "inliner": true,
-              "jumpdestRemover": true,
-              "orderLiterals": true,
-              "deduplicate": true,
-              "cse": true,
-              "constantOptimizer": true,
-              "yulDetails": {
-                "stackAllocation": true,
-                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
-              }
-            }
-          },
-          "metadata": {
-            "bytecodeHash": "none"
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./token/ERC20.sol",
-        "./utils/Ownable.sol"
-      ],
-      "versionPragmas": [
-        ">=0.8.4"
-      ],
-      "artifacts": [
-        "CygnusERC20"
-      ]
-    },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/token/ERC20.sol": {
-      "lastModificationDate": 1687903954145,
-      "contentHash": "87f2f813e3203889609201e6084548bf",
-      "sourceName": "contracts/cygnus-token/token/ERC20.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/interfaces/IStarknetCore.sol": {
+      "lastModificationDate": 1705971208527,
+      "contentHash": "071d9e16de93a590bd7b2617a1c9f781",
+      "sourceName": "contracts/cygnus-token/interfaces/IStarknetCore.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -2024,16 +1025,398 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.4"
+        "0.8.17"
+      ],
+      "artifacts": [
+        "IStarknetCore"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/token/oft/OFT.sol": {
+      "lastModificationDate": 1705971386201,
+      "contentHash": "a42742d715c7ec27a89a0d114626828a",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/token/oft/OFT.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+        "./IOFT.sol",
+        "./OFTCore.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "OFT"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/token/oft/IOFT.sol": {
+      "lastModificationDate": 1705971386200,
+      "contentHash": "9ce3aaf6a0fc5f741d73e507fd1b0e5e",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/token/oft/IOFT.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IOFTCore.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IOFT"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@openzeppelin+contracts@4.9.5/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+      "lastModificationDate": 1705971355656,
+      "contentHash": "df36f7051335cd1e748b1b6463b7fdd3",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/token/oft/IOFTCore.sol": {
+      "lastModificationDate": 1705971386200,
+      "contentHash": "88ac9f03ed739eef4a39e7195d667dae",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/token/oft/IOFTCore.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/utils/introspection/IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IOFTCore"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@openzeppelin+contracts@4.9.5/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+      "lastModificationDate": 1705971355656,
+      "contentHash": "03e6768535ac4da0e9756f1d8a4a018a",
+      "sourceName": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC165"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@openzeppelin+contracts@4.9.5/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
+      "lastModificationDate": 1705971355655,
+      "contentHash": "3ae5166c6827a9cf1a7a462d1632b464",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "./extensions/IERC20Metadata.sol",
+        "../../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
       ],
       "artifacts": [
         "ERC20"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/utils/Ownable.sol": {
-      "lastModificationDate": 1687903440115,
-      "contentHash": "fb11375d28922ba0694b7f0a0d5d41a3",
-      "sourceName": "contracts/cygnus-token/utils/Ownable.sol",
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/token/oft/OFTCore.sol": {
+      "lastModificationDate": 1705971386201,
+      "contentHash": "d2b36b8bfc0293e78632273ad18a2811",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/token/oft/OFTCore.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../lzApp/NonblockingLzApp.sol",
+        "./IOFTCore.sol",
+        "@openzeppelin/contracts/utils/introspection/ERC165.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "OFTCore"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@openzeppelin+contracts@4.9.5/node_modules/@openzeppelin/contracts/utils/Context.sol": {
+      "lastModificationDate": 1705971355655,
+      "contentHash": "f07feb4a44b1a4872370da5aa70e8e46",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -2076,14 +1459,551 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.4"
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@openzeppelin+contracts@4.9.5/node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol": {
+      "lastModificationDate": 1705971355656,
+      "contentHash": "909ab67fc5c25033fe6cd364f8c056f9",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "IERC20Metadata"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@openzeppelin+contracts@4.9.5/node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol": {
+      "lastModificationDate": 1705971355655,
+      "contentHash": "0e7db055ce108f9da7bb6686a00287c0",
+      "sourceName": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC165.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC165"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol": {
+      "lastModificationDate": 1705971386201,
+      "contentHash": "f35024ad9dd30ddf6f0fbc72daedcce9",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/lzApp/NonblockingLzApp.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./LzApp.sol",
+        "../util/ExcessivelySafeCall.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "NonblockingLzApp"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/lzApp/LzApp.sol": {
+      "lastModificationDate": 1705971386201,
+      "contentHash": "7222a8d323c1394fcfe339d593a06f88",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/lzApp/LzApp.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "../interfaces/ILayerZeroReceiver.sol",
+        "../interfaces/ILayerZeroUserApplicationConfig.sol",
+        "../interfaces/ILayerZeroEndpoint.sol",
+        "../util/BytesLib.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "LzApp"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/util/ExcessivelySafeCall.sol": {
+      "lastModificationDate": 1705971386200,
+      "contentHash": "ef974de452c80735e5cc7f0783f32668",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/util/ExcessivelySafeCall.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.7.6"
+      ],
+      "artifacts": [
+        "ExcessivelySafeCall"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@openzeppelin+contracts@4.9.5/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
+      "lastModificationDate": 1705971355657,
+      "contentHash": "5a20b2cad87ddb61c7a3a6af21289e28",
+      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
       ],
       "artifacts": [
         "Ownable"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/libraries/Address.sol": {
-      "lastModificationDate": 1687903440115,
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/util/BytesLib.sol": {
+      "lastModificationDate": 1705971386200,
+      "contentHash": "cd6bbaeb9593134143efee6226602785",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/util/BytesLib.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.8.0 <0.9.0"
+      ],
+      "artifacts": [
+        "BytesLib"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol": {
+      "lastModificationDate": 1705971386200,
+      "contentHash": "008cb6eedb0a3be0c12cdd2307d1d9b1",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroEndpoint.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ILayerZeroUserApplicationConfig.sol"
+      ],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "ILayerZeroEndpoint"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroUserApplicationConfig.sol": {
+      "lastModificationDate": 1705971386200,
+      "contentHash": "ea8e436e41bc96a3d434edb386b63cda",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroUserApplicationConfig.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "ILayerZeroUserApplicationConfig"
+      ]
+    },
+    "/home/sorrowlol/token/node_modules/.pnpm/@layerzerolabs+solidity-examples@0.0.13_@ethersproject+hardware-wallets@5.7.0_@nomiclabs+hard_mqrucnic2i7fasggza4b7shfxi/node_modules/@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroReceiver.sol": {
+      "lastModificationDate": 1705971386200,
+      "contentHash": "62703c3b19a452bfdaca90f5bc59cfef",
+      "sourceName": "@layerzerolabs/solidity-examples/contracts/interfaces/ILayerZeroReceiver.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "viaIR": true,
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000000,
+            "details": {
+              "peephole": true,
+              "inliner": true,
+              "jumpdestRemover": true,
+              "orderLiterals": true,
+              "deduplicate": true,
+              "cse": true,
+              "constantOptimizer": true,
+              "yulDetails": {
+                "stackAllocation": true,
+                "optimizerSteps": "dhfoDgvulfnTUtnIf[xa[r]EscLMcCTUtTOntnfDIulLculVcul[j]Tpeulxa[rul]xa[r]cLgvifCTUca[r]LSsTOtfDnca[r]Iulc]jmul[jul]VcTOculjmul"
+              }
+            }
+          },
+          "metadata": {
+            "bytecodeHash": "none"
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "ILayerZeroReceiver"
+      ]
+    },
+    "/home/sorrowlol/token/contracts/cygnus-token/libraries/Address.sol": {
+      "lastModificationDate": 1705971157245,
       "contentHash": "d68ccd3c65514f70e577f5f73672eaef",
       "sourceName": "contracts/cygnus-token/libraries/Address.sol",
       "solcConfig": {
@@ -2134,10 +2054,10 @@
         "Address"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/interfaces/IPillarsOfCreation.sol": {
-      "lastModificationDate": 1688115862048,
-      "contentHash": "220214360885d0fe1035478041d8639a",
-      "sourceName": "contracts/cygnus-token/interfaces/IPillarsOfCreation.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/token/ERC20.sol": {
+      "lastModificationDate": 1705971157246,
+      "contentHash": "87f2f813e3203889609201e6084548bf",
+      "sourceName": "contracts/cygnus-token/token/ERC20.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -2178,20 +2098,18 @@
           }
         }
       },
-      "imports": [
-        "./core/IHangar18.sol"
-      ],
+      "imports": [],
       "versionPragmas": [
-        ">=0.8.17"
+        "^0.8.4"
       ],
       "artifacts": [
-        "IPillarsOfCreation"
+        "ERC20"
       ]
     },
-    "/home/sorrowlol/cygnus-token/contracts/cygnus-token/PillarsOfCreation.sol": {
-      "lastModificationDate": 1688115862056,
-      "contentHash": "0f9d4423a54a84b418b2ebd8de41951f",
-      "sourceName": "contracts/cygnus-token/PillarsOfCreation.sol",
+    "/home/sorrowlol/token/contracts/cygnus-token/utils/Context.sol": {
+      "lastModificationDate": 1705971157246,
+      "contentHash": "8a744dc1ffd2272b9919fac04f1d5bfd",
+      "sourceName": "contracts/cygnus-token/utils/Context.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -2232,20 +2150,12 @@
           }
         }
       },
-      "imports": [
-        "./interfaces/IPillarsOfCreation.sol",
-        "./utils/ReentrancyGuard.sol",
-        "./libraries/SafeTransferLib.sol",
-        "./libraries/FixedPointMathLib.sol",
-        "./interfaces/core/IHangar18.sol",
-        "./interfaces/core/IERC20.sol",
-        "./interfaces/core/ICygnusTerminal.sol"
-      ],
+      "imports": [],
       "versionPragmas": [
         ">=0.8.17"
       ],
       "artifacts": [
-        "PillarsOfCreation"
+        "Context"
       ]
     }
   }

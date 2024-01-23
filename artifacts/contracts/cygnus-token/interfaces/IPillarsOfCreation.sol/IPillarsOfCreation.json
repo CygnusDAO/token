@@ -4,35 +4,8 @@
   "sourceName": "contracts/cygnus-token/interfaces/IPillarsOfCreation.sol",
   "abi": [
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "underlying",
-          "type": "address"
-        }
-      ],
-      "name": "PillarsOfCreation__CantSweepUnderlying",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "max",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "value",
-          "type": "uint256"
-        }
-      ],
-      "name": "PillarsOfCreation__CygPerBlockExceedsLimit",
+      "inputs": [],
+      "name": "PillarsOfCreation__CantConvertUint256",
       "type": "error"
     },
     {
@@ -41,82 +14,27 @@
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "admin",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        }
-      ],
+      "inputs": [],
       "name": "PillarsOfCreation__MsgSenderNotAdmin",
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "borrowable",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        }
-      ],
-      "name": "PillarsOfCreation__MsgSenderNotBorrowable",
+      "inputs": [],
+      "name": "PillarsOfCreation__OnlyArtificer",
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "sender",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "origin",
-          "type": "address"
-        }
-      ],
-      "name": "PillarsOfCreation__OnlyEOAAllowed",
+      "inputs": [],
+      "name": "PillarsOfCreation__PillarsAlreadyInitialized",
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "shuttleId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "borrowable",
-          "type": "address"
-        }
-      ],
+      "inputs": [],
       "name": "PillarsOfCreation__ShuttleAlreadyInitialized",
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "shuttleId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "borrowable",
-          "type": "address"
-        }
-      ],
+      "inputs": [],
       "name": "PillarsOfCreation__ShuttleNotInitialized",
       "type": "error"
     },
@@ -156,8 +74,96 @@
         },
         {
           "indexed": true,
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "indexed": false,
           "internalType": "uint256",
-          "name": "epoch",
+          "name": "reward",
+          "type": "uint256"
+        }
+      ],
+      "name": "Collect",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalPools",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "reward",
+          "type": "uint256"
+        }
+      ],
+      "name": "CollectAll",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalPools",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "reward",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
+        }
+      ],
+      "name": "CollectAllSingle",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "CygnusDAODrip",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "time",
           "type": "uint256"
         },
         {
@@ -168,12 +174,87 @@
         },
         {
           "indexed": false,
+          "internalType": "bool",
+          "name": "doomswitch",
+          "type": "bool"
+        }
+      ],
+      "name": "DoomSwitchSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
           "internalType": "uint256",
-          "name": "reward",
+          "name": "birth",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "death",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_cygPerBlockRewards",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "_cygPerBlockDAO",
           "type": "uint256"
         }
       ],
-      "name": "CollectReward",
+      "name": "InitializePillars",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "oldArtificer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "newArtificer",
+          "type": "address"
+        }
+      ],
+      "name": "NewArtificer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "borrowable",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "contract IBonusRewarder",
+          "name": "bonusRewarder",
+          "type": "address"
+        }
+      ],
+      "name": "NewBonusRewarder",
       "type": "event"
     },
     {
@@ -230,15 +311,15 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "shuttleId",
-          "type": "uint256"
+          "indexed": false,
+          "internalType": "address",
+          "name": "borrowable",
+          "type": "address"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "borrowable",
+          "name": "collateral",
           "type": "address"
         },
         {
@@ -261,37 +342,37 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "shuttleId",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "borrowable",
           "type": "address"
         },
         {
           "indexed": false,
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
+        },
+        {
+          "indexed": false,
           "internalType": "uint256",
-          "name": "allocPoints",
+          "name": "totalAlloc",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "alloc",
           "type": "uint256"
         }
       ],
-      "name": "NewShuttleReward",
+      "name": "NewShuttleRewards",
       "type": "event"
     },
     {
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "shuttleId",
-          "type": "uint256"
-        },
-        {
           "indexed": false,
           "internalType": "address",
           "name": "borrowable",
@@ -299,18 +380,12 @@
         },
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "oldAllocPoint",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "currentEpoch",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
         }
       ],
-      "name": "RemoveShuttleReward",
+      "name": "RemoveBonusRewarder",
       "type": "event"
     },
     {
@@ -398,15 +473,9 @@
         },
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "adjustmentFactor",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "enum IPillarsOfCreation.Position",
-          "name": "position",
-          "type": "uint8"
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
         }
       ],
       "name": "TrackRewards",
@@ -422,6 +491,18 @@
           "type": "address"
         },
         {
+          "indexed": true,
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
           "indexed": false,
           "internalType": "uint256",
           "name": "lastRewardTime",
@@ -430,13 +511,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "totalShares",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "accRewardPerShare",
+          "name": "epoch",
           "type": "uint256"
         }
       ],
@@ -445,33 +520,7 @@
     },
     {
       "inputs": [],
-      "name": "ACC_PRECISION",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "BLOCKS_PER_EPOCH",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "BLOCKS_PER_YEAR",
       "outputs": [
         {
           "internalType": "uint256",
@@ -497,19 +546,6 @@
     },
     {
       "inputs": [],
-      "name": "MAX_CYG_PER_BLOCK",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "REDUCTION_FACTOR_PER_EPOCH",
       "outputs": [
         {
@@ -523,7 +559,7 @@
     },
     {
       "inputs": [],
-      "name": "SHARES_PRECISION",
+      "name": "SECONDS_PER_YEAR",
       "outputs": [
         {
           "internalType": "uint256",
@@ -557,35 +593,54 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "shuttleId",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "borrowable",
+          "type": "address"
         },
         {
           "internalType": "uint256",
           "name": "allocPoint",
           "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
         }
       ],
-      "name": "adjustShuttleRewards",
+      "name": "adjustRewards",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "allShuttles",
+      "inputs": [],
+      "name": "advanceEpoch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "artificer",
       "outputs": [
         {
           "internalType": "address",
           "name": "",
           "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "artificerEnabled",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -618,49 +673,15 @@
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "blocksUntilNextEpoch",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "blocksUntilSupernova",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "borrowRewardsWeight",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "uint256",
           "name": "epoch",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalRewards",
           "type": "uint256"
         }
       ],
@@ -680,6 +701,11 @@
         {
           "internalType": "uint256",
           "name": "epoch",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalRewards",
           "type": "uint256"
         }
       ],
@@ -702,9 +728,9 @@
           "type": "address"
         },
         {
-          "internalType": "enum IPillarsOfCreation.Position",
-          "name": "position",
-          "type": "uint8"
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
         },
         {
           "internalType": "address",
@@ -713,17 +739,18 @@
         }
       ],
       "name": "collect",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "cygAmount",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [
-        {
-          "internalType": "enum IPillarsOfCreation.Position",
-          "name": "position",
-          "type": "uint8"
-        },
         {
           "internalType": "address",
           "name": "to",
@@ -731,7 +758,37 @@
         }
       ],
       "name": "collectAll",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "cygAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
+        }
+      ],
+      "name": "collectAllSingle",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "cygAmount",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -750,7 +807,33 @@
     },
     {
       "inputs": [],
-      "name": "cygPerBlock",
+      "name": "currentEpochRewardsDAO",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cygPerBlockDAO",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "cygPerBlockRewards",
       "outputs": [
         {
           "internalType": "uint256",
@@ -776,12 +859,278 @@
     },
     {
       "inputs": [],
-      "name": "daoReserves",
+      "name": "dateCurrentEpochStart",
       "outputs": [
         {
-          "internalType": "address",
+          "internalType": "uint256",
+          "name": "year",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "month",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "day",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hour",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minute",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "second",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "epoch",
+          "type": "uint256"
+        }
+      ],
+      "name": "dateEpochEnd",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "year",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "month",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "day",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hour",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minute",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "second",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "epoch",
+          "type": "uint256"
+        }
+      ],
+      "name": "dateEpochStart",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "year",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "month",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "day",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hour",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minute",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "second",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dateLastEpochStart",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "year",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "month",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "day",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hour",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minute",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "second",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dateNextEpochStart",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "year",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "month",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "day",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hour",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minute",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "second",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dateSupernova",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "year",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "month",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "day",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hour",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minute",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "second",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "daysPassedThisEpoch",
+      "outputs": [
+        {
+          "internalType": "uint256",
           "name": "",
-          "type": "address"
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "daysUntilNextEpoch",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "daysUntilSupernova",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -801,8 +1150,32 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "fromTimestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "toTimestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "diffDays",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "result",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
       "inputs": [],
-      "name": "doomSwitch",
+      "name": "doomswitch",
       "outputs": [
         {
           "internalType": "bool",
@@ -811,6 +1184,13 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dripCygDAO",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -936,9 +1316,9 @@
           "type": "address"
         },
         {
-          "internalType": "enum IPillarsOfCreation.Position",
-          "name": "position",
-          "type": "uint8"
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
         }
       ],
       "name": "getShuttleInfo",
@@ -954,29 +1334,44 @@
           "type": "uint256"
         },
         {
-          "internalType": "uint256",
+          "internalType": "address",
           "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
+          "type": "address"
         },
         {
           "internalType": "address",
           "name": "",
           "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "contract IBonusRewarder",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -990,9 +1385,9 @@
           "type": "address"
         },
         {
-          "internalType": "enum IPillarsOfCreation.Position",
-          "name": "position",
-          "type": "uint8"
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
         },
         {
           "internalType": "address",
@@ -1030,21 +1425,23 @@
       "type": "function"
     },
     {
-      "inputs": [
+      "inputs": [],
+      "name": "initializePillars",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lastDripDAO",
+      "outputs": [
         {
           "internalType": "uint256",
-          "name": "shuttleId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "allocPoint",
+          "name": "",
           "type": "uint256"
         }
       ],
-      "name": "initializeShuttleRewards",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1070,7 +1467,7 @@
           "type": "string"
         }
       ],
-      "stateMutability": "pure",
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1094,14 +1491,48 @@
           "type": "address"
         },
         {
-          "internalType": "enum IPillarsOfCreation.Position",
-          "name": "position",
-          "type": "uint8"
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
         },
         {
           "internalType": "address",
-          "name": "_user",
+          "name": "account",
           "type": "address"
+        }
+      ],
+      "name": "pendingBonusReward",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "borrowable",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
         }
       ],
       "name": "pendingCyg",
@@ -1109,6 +1540,62 @@
         {
           "internalType": "uint256",
           "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "pendingCygAll",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingCygDAO",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
+        }
+      ],
+      "name": "pendingCygSingle",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "pending",
           "type": "uint256"
         }
       ],
@@ -1131,12 +1618,48 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "shuttleId",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "borrowable",
+          "type": "address"
         },
         {
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
+        }
+      ],
+      "name": "removeBonusRewarder",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
+          "name": "_artificer",
+          "type": "address"
+        }
+      ],
+      "name": "setArtificer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "borrowable",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
+        },
+        {
+          "internalType": "contract IBonusRewarder",
           "name": "bonusRewarder",
           "type": "address"
         }
@@ -1147,21 +1670,8 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_cygPerBlock",
-          "type": "uint256"
-        }
-      ],
-      "name": "setCygPerBlock",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "inputs": [],
-      "name": "setDoomSwitch",
+      "name": "setDoomswitch",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1169,12 +1679,22 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "borrowable",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
-          "name": "_newRewardWeight",
+          "name": "allocPoint",
           "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
         }
       ],
-      "name": "setRewardWeights",
+      "name": "setShuttleRewards",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1200,6 +1720,13 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "sweepNative",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -1210,6 +1737,50 @@
       "name": "sweepToken",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "timestampToDateTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "year",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "month",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "day",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "hour",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minute",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "second",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -1228,6 +1799,19 @@
     {
       "inputs": [],
       "name": "totalCygClaimed",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalCygDAO",
       "outputs": [
         {
           "internalType": "uint256",
@@ -1277,14 +1861,9 @@
           "type": "uint256"
         },
         {
-          "internalType": "uint256",
-          "name": "adjustmentFactor",
-          "type": "uint256"
-        },
-        {
-          "internalType": "enum IPillarsOfCreation.Position",
-          "name": "position",
-          "type": "uint8"
+          "internalType": "address",
+          "name": "collateral",
+          "type": "address"
         }
       ],
       "name": "trackRewards",
@@ -1293,11 +1872,42 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "untilNextEpoch",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "untilSupernova",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
           "name": "borrowable",
           "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "borrowRewards",
+          "type": "bool"
         }
       ],
       "name": "updateShuttle",
