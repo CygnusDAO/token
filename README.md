@@ -3,6 +3,11 @@
 - `1.0.0` - Was deployed on Polygon (PoS) and Arbitrum. Calculated epoch on the fly, causing the contract to be out of sync if no tx made it advance manually. (Oct 10 2023)
 - `2.0.0` - Introduces a variable to keep track of epochs internally. Removes unneeded checks when claiming CYG and some gas optimizations. (Jan 10 2024)
 
+# LayerZero + Starknet!
+
+The CYG token is a LayerZero OFT, meaning the token is native to each chain. The token on Ethereum is also integrated wtih Starknet Core to allow CYG to be bridged between these two, as
+LayerZero does not support Starknet yet.
+
 # CYG Token Rewarder
 
 The Pillars Of Creation is a contract that allows borrowers and lenders to collect CYG based on how much they have deposited at the core contracts.
@@ -24,7 +29,7 @@ where reductionFactor is the percentage by which the rewards are reduced every e
 
 # Yearly Rewards
 
-The total CYG on each chain is 5,000,000 M to be minted over 6 years, with most rewards (70%) going to lenders/borrowers and the rest to the DAO, where each epoch emissions reduce by 1%:
+The total CYG on each chain is 5,000,000 M to be minted over 6 years, with most rewards (>70%) going to lenders/borrowers and the rest to the DAO, where each epoch emissions reduce by 1%:
 
                        |
                   800k |_______.

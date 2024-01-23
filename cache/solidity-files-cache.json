@@ -869,8 +869,8 @@
       ]
     },
     "/home/sorrowlol/token/contracts/cygnus-token/CygnusDAO.sol": {
-      "lastModificationDate": 1705979589421,
-      "contentHash": "220f0342eb6933d83c62b818d631122f",
+      "lastModificationDate": 1705982646189,
+      "contentHash": "dc286a2b4c5e1e6edc037c0b42ee6580",
       "sourceName": "contracts/cygnus-token/CygnusDAO.sol",
       "solcConfig": {
         "version": "0.8.17",

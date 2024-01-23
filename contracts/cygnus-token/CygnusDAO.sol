@@ -1,4 +1,39 @@
-// SPDX-License-Identifier: MIT
+//  SPDX-License-Identifier: AGPL-3.0-or-later
+//
+//  CygnusDAO.sol
+//
+//  Copyright (C) 2023 CygnusDAO
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU Affero General Public License for more details.
+//
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+//  ═══════════════════════════════════════════════════════════════════════════════════════════════════════════  
+//   .              .            .               .      🛰️     .           .                .           .
+//          █████████     🛰️      ---======*.                                                 .           ⠀
+//         ███░░░░░███                                               📡                🌔                      . 
+//        ███     ░░░  █████ ████  ███████ ████████   █████ ████  █████        ⠀
+//       ░███         ░░███ ░███  ███░░███░░███░░███ ░░███ ░███  ███░░      .     .⠀           .           .
+//       ░███          ░███ ░███ ░███ ░███ ░███ ░███  ░███ ░███ ░░█████       ⠀
+//       ░░███     ███ ░███ ░███ ░███ ░███ ░███ ░███  ░███ ░███  ░░░░███              .             .⠀
+//        ░░█████████  ░░███████ ░░███████ ████ █████ ░░████████ ██████     .----===*  ⠀
+//         ░░░░░░░░░    ░░░░░███  ░░░░░███░░░░ ░░░░░   ░░░░░░░░ ░░░░░░            .                           .⠀
+//                      ███ ░███  ███ ░███                .                 .                 .⠀
+//       .             ░░██████  ░░██████        🛰️                        🛰️             .                 .     
+//                      ░░░░░░    ░░░░░░      -------=========*                      .                     ⠀
+//          .                            .       .          .            .                        .             .⠀
+//       
+//       CYGNUSDAO TOKEN ('CYG') - https://cygnusdao.finance                                                          .                     .
+//  ═══════════════════════════════════════════════════════════════════════════════════════════════════════════
 pragma solidity >=0.8.17;
 
 // Dependencies
@@ -7,12 +42,17 @@ import {ICygnusDAO} from "./interfaces/ICygnusDAO.sol";
 import {IStarknetCore} from "./interfaces/IStarknetCore.sol";
 
 /**
- *  @title CygnusDAO CYG token built as layer-zero`s OFT.
+ *  @title  CygnusDAO CYG Token on Ethereum Mainnet.
  *  @notice On each chain the CYG token is deployed there is a cap of 5M to be minted over 6 years (156 epochs).
  *          See https://github.com/CygnusDAO/cygnus-token/blob/main/contracts/cygnus-token/PillarsOfCreation.sol
+ *
  *          Instead of using `totalSupply` to cap the mints, we must keep track internally of the total minted
  *          amount, to not break compatability with the OFT's `_debitFrom` and `_creditTo` functions (since these
  *          burn and mint supply into existence respectively).
+ *
+ *          On Ethereum Mainnet aside from also being built as an OFT it is also integrated natively with Starknet 
+ *          Core to allow sending messages between Ethereum <> Starknet, allowing to bridge CYG between the two
+ *          chains instantly.
  */
 contract CygnusDAO is ICygnusDAO, OFT {
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
