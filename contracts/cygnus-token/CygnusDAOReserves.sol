@@ -83,10 +83,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     Shuttle[] public override allShuttles;
 
     /// @inheritdoc ICygnusDAOReserves
-    mapping(uint256 => Shuttle) public override getShuttle;
-
-    /// @inheritdoc ICygnusDAOReserves
-    string public override name = "CygnusDAO: Reserves";
+    string public override name = "Cygnus: DAO Reserves";
 
     /// @inheritdoc ICygnusDAOReserves
     address public override cygnusDAOSafe;
@@ -124,7 +121,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         usd = _hangar18.usd(); // This is underlying for all borrowables
 
         // Set the weight of the shares that are redeemed and sent to the vault
-        x1VaultWeight = 0.5e18;
+        x1VaultWeight = 1e18;
 
         // Set the weight of the shares that this contract receives that are sent to the dao positions address
         daoWeight = 1e18 - x1VaultWeight;
@@ -205,22 +202,22 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         /// @custom:error CantRedeemAddressZero Avoid if shuttle does not exist
         if (borrowable == address(0)) revert CygnusDAOReserves__CantRedeemAddressZero();
 
-        // Acrue interest first and receive CygUSD shares (if any)
-        ICygnusTerminal(borrowable).accrueInterest();
+        // Sync and mint new reserves if needed
+        ICygnusTerminal(borrowable).sync();
 
         // Get balance of vault shares we own
         uint256 totalShares = _checkBalance(borrowable);
 
-        // Only redeem vault shares
+        // Shares for the X1 Vault
         uint256 x1Shares = totalShares.mulWad(x1VaultWeight);
 
         // Shares for the DAO
         shares = totalShares - x1Shares;
 
-        // Assets for the X1 Vault
+        // Redeem USDC to the X1 vault
         if (x1Shares > 0) assets = ICygnusTerminal(borrowable).redeem(x1Shares, cygnusX1Vault, address(this));
 
-        // Transfer shares USD Reserves
+        // Send CygUSD to the DAO safe
         if (shares > 0) borrowable.safeTransfer(cygnusDAOSafe, shares);
     }
 
@@ -239,8 +236,6 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
     // USDC: Have 100 CygUSD. We redeem 50 CygUSD for USDC and send the USDC to the X1 Vault.
     //       The 50 leftover CygUSD we send to the DAO to not be redeemed, kept as reserves.
-    // USDC: Have 100 CygUSD. We redeem 50 CygUSD for USDC and send the USDC to the X1 Vault.
-    //       The 50 leftover CygUSD we send to the DAO to not be redeemed, kept as reserves.
 
     /// @inheritdoc ICygnusDAOReserves
     /// @custom:security non-reentrant
@@ -249,7 +244,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         if (privateBanker) _checkAdmin();
 
         // Address of borrowable at index `i`
-        address borrowable = getShuttle[shuttleId].borrowable;
+        address borrowable = allShuttles[shuttleId].borrowable;
 
         // Redeem CygUSD for USD
         (daoShares, x1Assets) = _redeemAndFundUSD(borrowable);
@@ -285,7 +280,6 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
                 // Increase assets received
                 x1Assets += _assets;
 
-                // prettier-ignore
                 i++;
             }
         }
@@ -303,7 +297,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         if (privateBanker) _checkAdmin();
 
         // Get this shuttle's collateral address
-        address collateral = getShuttle[shuttleId].collateral;
+        address collateral = allShuttles[shuttleId].collateral;
 
         // Send CygLP to the safe if we have any
         daoShares = _redeemAndFundCygLP(collateral);
@@ -342,6 +336,24 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         emit FundDAOReservesAll(shuttlesLength, cygnusDAOSafe, daoShares);
     }
 
+    // Hangar18 only
+
+    /// @inheritdoc ICygnusDAOReserves
+    /// @custom:security non-reentrant only-hangar
+    function addShuttle(uint256 shuttleId, address borrowable, address collateral) external override {
+        /// @custom:error MsgSenderNotHangar Can only be added after deployment
+        if (msg.sender != address(hangar18)) revert CygnusDAOReserves__MsgSenderNotHangar();
+
+        // Create Lending pool with borrowable and collateral
+        Shuttle memory shuttle = Shuttle({initialized: true, shuttleId: shuttleId, borrowable: borrowable, collateral: collateral});
+
+        // Push to array
+        allShuttles.push(shuttle);
+
+        /// @custom:event NewShuttleAdded
+        emit NewShuttleAdded(shuttle);
+    }
+
     // Admin only
 
     /// @inheritdoc ICygnusDAOReserves
@@ -361,31 +373,6 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
 
         /// @custom:event NewX1VaultWeight
         emit NewX1VaultWeight(oldWeight, x1VaultWeight);
-    }
-
-    /// @inheritdoc ICygnusDAOReserves
-    /// @custom:security non-reentrant only-admin
-    function addShuttle(uint256 shuttleId) external override cygnusAdmin {
-        /// @custom:security ShuttleAlreadyInitialized Avoid initializing shuttle struct twice
-        if (getShuttle[shuttleId].initialized) revert CygnusDAOReserves__ShuttleAlreadyInitialized({shuttleId: shuttleId});
-
-        // Get shuttle from hangar18
-        (bool launched, , address borrowable, address collateral, ) = hangar18.allShuttles(shuttleId);
-
-        /// @custom:security ShuttleDoesntExist Avoid initializing a non-existant pool
-        if (!launched) revert CygnusDAOReserves__ShuttleDoesntExist({shuttleId: shuttleId});
-
-        // Create Lending pool with borrowable and collateral
-        Shuttle memory shuttle = Shuttle({initialized: true, shuttleId: shuttleId, borrowable: borrowable, collateral: collateral});
-
-        // Assign shuttle
-        getShuttle[shuttleId] = shuttle;
-
-        // Push to array
-        allShuttles.push(shuttle);
-
-        /// @custom:event NewShuttleAdded
-        emit NewShuttleAdded(shuttle);
     }
 
     /// @inheritdoc ICygnusDAOReserves
@@ -455,11 +442,8 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
     /// @inheritdoc ICygnusDAOReserves
     /// @custom:security only-admin
     function switchPrivateBanker() external override cygnusAdmin {
-        // Switch status
-        privateBanker = !privateBanker;
-
         /// @custom:event SwitchPrivateBanker
-        emit SwitchPrivateBanker(privateBanker);
+        emit SwitchPrivateBanker(privateBanker = !privateBanker);
     }
 
     /// @inheritdoc ICygnusDAOReserves
@@ -471,11 +455,8 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         // Safe up to now
         address oldSafe = cygnusDAOSafe;
 
-        // Assign new safe
-        cygnusDAOSafe = _newSafe;
-
         /// @custom;event NewDAOSafe
-        emit NewDAOSafe(oldSafe, _newSafe);
+        emit NewDAOSafe(oldSafe, cygnusDAOSafe = _newSafe);
     }
 
     /// @inheritdoc ICygnusDAOReserves
@@ -487,10 +468,7 @@ contract CygnusDAOReserves is ICygnusDAOReserves, ReentrancyGuard {
         // Old vault up to now
         address oldVault = cygnusX1Vault;
 
-        // Assign new
-        cygnusX1Vault = _x1Vault;
-
         /// @custom:event NewX1Vault
-        emit NewX1Vault(oldVault, _x1Vault);
+        emit NewX1Vault(oldVault, cygnusX1Vault = _x1Vault);
     }
 }
