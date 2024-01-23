@@ -53,7 +53,18 @@ interface ICygnusTerminal is IERC20Permit {
     function shuttleId() external view returns (uint256);
 
     /**
-     *  @notice Accrues interest in borrowable to receive CygUSD shares
+     *  @notice Get the collateral address from the borrowable
      */
-    function accrueInterest() external;
+    function collateral() external view returns (address);
+
+    /**
+     *  @notice Get the borrowable address from the collateral
+     */
+    function borrowable() external view returns (address);
+
+    /**
+     *  @notice Syncs the totalBalance in terms of its underlying (accrues interest in borrowable)
+     */
+    function sync() external;
 }
+

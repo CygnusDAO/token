@@ -2,57 +2,82 @@
 pragma solidity >=0.8.17;
 
 // Dependencies
-import {IERC20, OFT} from "@layerzerolabs/solidity-examples/contracts/token/oft/OFT.sol";
+import {OFT} from "@layerzerolabs/solidity-examples/contracts/token/oft/OFT.sol";
+import {ICygnusDAO} from "./interfaces/ICygnusDAO.sol";
+import {IStarknetCore} from "./interfaces/IStarknetCore.sol";
 
 /**
  *  @title CygnusDAO CYG token built as layer-zero`s OFT.
- *  @notice On each chain the CYG token is deployed there is a cap of 2.5M to be minted over 42 epochs (4 years).
+ *  @notice On each chain the CYG token is deployed there is a cap of 5M to be minted over 6 years (156 epochs).
  *          See https://github.com/CygnusDAO/cygnus-token/blob/main/contracts/cygnus-token/PillarsOfCreation.sol
  *          Instead of using `totalSupply` to cap the mints, we must keep track internally of the total minted
  *          amount, to not break compatability with the OFT's `_debitFrom` and `_creditTo` functions (since these
  *          burn and mint supply into existence respectively).
  */
-contract CygnusDAO is OFT {
-    /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
-            1. EVENTS AND ERRORS
-        ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
-
-    /// @custom:event NewCYGMinter Emitted when the CYG minter contract is set, only emitted once
-    event NewCYGMinter(address oldMinter, address newMinter);
-
-    /// @custom:event Migrate Emitted when a user migrates from the old CYG
-    event Migrate(address user, uint256 amount);
-
-    /// @custom:error ExceedsSupplyCap Reverts when minting above cap
-    error ExceedsSupplyCap();
-
-    /// @custom:error PillarsAlreadySet Reverts when assigning the minter contract again
-    error PillarsAlreadySet();
-
-    /// @custom:error OnlyPillars Reverts when msg.sender is not the CYG minter contract
-    error OnlyPillars();
-
-    /// @custom:error InsufficientBalance Reverts if already migrated or has no balance
-    error InsufficientBalance();
-
+contract CygnusDAO is ICygnusDAO, OFT {
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             2. STORAGE
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
 
-    /// @notice Maximum cap of CYG on this chain
-    uint256 public constant CAP = 2_500_000e18;
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    uint256 public constant override CAP = 5_000_000e18;
 
-    /// @notice The CYG minter contract
-    address public pillarsOfCreation;
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    address public override pillarsOfCreation;
 
-    /// @notice Stored minted amount
-    uint256 public totalMinted;
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    uint256 public override totalMinted;
+
+    //  ------------------------- 
+    //          Starknet
+    //  -------------------------
+
+    /**
+     *  @notice Max felt252
+     *  @inheritdoc ICygnusDAO
+     */
+    uint256 public constant override STARKNET_MAX = 3618502788666131213697322783095070105623107215331596699973092056135872020481;
+
+    /**
+     *  @notice The L1 handler selector to teleport CYG from ethereum to starknet ('teleport_to_starknet')
+     *  @inheritdoc ICygnusDAO
+     */
+    uint256 public constant override TELEPORT_TO_STARKNET = 0xca82aa394a9c50477a85ba3ec97709f084ea91f935210beb4332b6a67c43f4;
+
+    /**
+     *  @notice The L1 handler selector to teleport CYG from starknet to ethereum ('teleport_to_ethereum')
+     *  @inheritdoc ICygnusDAO
+     */
+    uint256 public constant override TELEPORT_TO_ETHEREUM = 0x3d1bc017185460515029ea53aa632a4eb656e28ba51b4330645d15b6898626a;
+
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    IStarknetCore public constant override STARKNET_CORE = IStarknetCore(0xc662c410C0ECf747543f5bA90660f6ABeBD9C8c4);
+
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    uint256 public constant override T_T = 6370215410494176513779785366845958513491968;
+
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    uint256 public override cygTokenStarknet;
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             3. CONSTRUCTOR
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
 
-    /// @notice Constructs the CYG OFT token and gives sender initial ownership to set paths.
+    /**
+     *  @notice Constructs the CYG OFT token and gives sender initial ownership
+     */
     constructor(string memory _name, string memory _symbol, address _lzEndpoint) OFT(_name, _symbol, _lzEndpoint) {
         // Every chain deployment is the same, 250,000 inital mint rest to pillars
         uint256 initial = 250_000e18;
@@ -68,7 +93,9 @@ contract CygnusDAO is OFT {
             4. MODIFIERS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
 
-    /// @notice Modifier for minting only if msg.sender is CYG minter contract
+    /**
+     *  @custom:modifier onlyPillars Modifier for functions that can only be called by the minter contract
+     */
     modifier onlyPillars() {
         _checkPillars();
         _;
@@ -80,10 +107,45 @@ contract CygnusDAO is OFT {
 
     /*  ─────────────────────────────────────────────── Private ───────────────────────────────────────────────  */
 
-    /// @notice Reverts if msg.sender is not CYG minter
+    /**
+     *  @notice Reverts if msg.sender is not CYG minter
+     */
     function _checkPillars() private view {
         /// @custom:error OnlyPillars
         if (_msgSender() != pillarsOfCreation) revert OnlyPillars();
+    }
+
+    /**
+     *  @notice Sanity check before bridging to l2
+     */
+    function _checkStarknet(uint256 recipient) private view {
+        /// @custom:error InvalidL2Recipient
+        if (recipient > STARKNET_MAX) revert ExceedsCairoMax();
+        /// @custom:error RecipientIsZero
+        else if (recipient == 0) revert RecipientIsZero();
+        /// @custom:error InvalidL2Recipient
+        else if (recipient == cygTokenStarknet) revert InvalidL2Recipient();
+    }
+
+    /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
+
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    function getL2MessageHash(address recipient, uint128 amount) external view returns (bytes32 messageHash, bool ready) {
+        // The message payload
+        uint256[] memory payload = new uint256[](3);
+
+        // Recipient of CYG on Ethereum and amount
+        payload[0] = T_T;
+        payload[1] = uint256(uint160(recipient));
+        payload[2] = amount;
+
+        // CYG transfer message hash given recipient and amount
+        messageHash = keccak256(abi.encodePacked(cygTokenStarknet, address(this), payload.length, payload));
+
+        // Whether the message is ready to be consumed
+        ready = STARKNET_CORE.l2ToL1Messages(messageHash) > 0;
     }
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
@@ -92,12 +154,12 @@ contract CygnusDAO is OFT {
 
     /*  ────────────────────────────────────────────── External ───────────────────────────────────────────────  */
 
-    /// @notice Mints CYG token into existence. Uses stored `totalMinted` instead of `totalSupply` as to not break
-    //          compatability with lzapp's `_debitFrom` and `_creditTo` functions
-    /// @notice Only the `pillarsOfCreation` contract may mint
-    /// @param to The receiver of the CYG token
-    /// @param amount The amount of CYG token to mint
-    /// @custom:security only-pillars-contract
+    // Controls the amount of CYG to be minted on this chain
+
+    /**
+     *  @inheritdoc ICygnusDAO
+     *  @custom:security only-pillars
+     */
     function mint(address to, uint256 amount) external onlyPillars {
         // Gas savings
         uint256 _totalMinted = totalMinted + amount;
@@ -112,9 +174,11 @@ contract CygnusDAO is OFT {
         _mint(to, amount);
     }
 
-    /// @notice Assigns the only contract on the chain that can mint the CYG token. Can only be set once.
-    /// @param _pillars The address of the minter contract
-    /// @custom:security only-admin
+    /**
+     *  @inheritdoc ICygnusDAO
+     *  @custom:security only-admin
+     *  @custom:security only-once
+     */
     function setPillarsOfCreation(address _pillars) external onlyOwner {
         // Current CYG minter
         address currentPillars = pillarsOfCreation;
@@ -126,34 +190,79 @@ contract CygnusDAO is OFT {
         emit NewCYGMinter(currentPillars, pillarsOfCreation = _pillars);
     }
 
-    /* ──────── Only for Polygon Mainnet ──────── */
+    //  ------------------------- 
+    //          Starknet
+    //  -------------------------
 
-    /// @notice Old CYG token
-    address public constant OLD_CYGNUS_TOKEN = 0xc115521DC2D0F950AD5D3589D0a4b22239C56A1B;
+    /**
+     *  @inheritdoc ICygnusDAO
+     *  @custom:security only-admin
+     *  @custom:security only-once
+     */
+    function setCygTokenStarknet(uint256 _cygToken) external override onlyOwner {
+        // Current CYG on Starknet
+        uint256 _cygTokenStarknet = cygTokenStarknet;
 
-    /// @notice Migrate old CYG to OFT
-    function migrate() external {
-        // Get migrator
-        address migrator = _msgSender();
+        /// @custom:error PillarsAlreadySet Avoid setting the CYG minter again if already initialized
+        if (_cygTokenStarknet != 0) revert StarknetCygAlreadySet();
 
-        // Get current balance
-        uint256 balance = IERC20(OLD_CYGNUS_TOKEN).balanceOf(migrator);
+        /// @custom:event NewCYGMinter
+        emit NewCYGStarknet(_cygTokenStarknet, cygTokenStarknet = _cygToken);
+    }
 
-        // Check balance
-        if (balance > 0) {
-            // Burn old CYG to zero address
-            IERC20(OLD_CYGNUS_TOKEN).transferFrom(migrator, address(0), balance);
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    function teleportToStarknet(uint256 recipient, uint128 amount) external payable override {
+        /// @custom:error CantTeleportZero
+        if (amount == 0) revert CantTeleportZero();
 
-            // Increase
-            totalMinted += balance;
+        // Do a quick sanity check on L2 recipient
+        _checkStarknet(recipient);
 
-            // Mint to migrator
-            _mint(migrator, balance);
-        }
-        // Revert if user has no balance
-        else revert("Insufficient Balance");
+        // The message payload
+        uint256[] memory payload = new uint256[](3);
 
-        /// @custom:event Migrate
-        emit Migrate(migrator, balance);
+        // Recipient of CYG on Ethereum and amount, the sum of amounts on all chains always fits in 1 slot 
+        payload[0] = T_T;
+        payload[1] = recipient;
+        payload[2] = amount;
+
+        // Burn first from msg.sender
+        _burn(msg.sender, amount);
+
+        // Send message to Starknet
+        bytes32 messageHash = STARKNET_CORE.sendMessageToL2{value: msg.value}(cygTokenStarknet, TELEPORT_TO_STARKNET, payload);
+
+        /// @custom:event TeleportToStarknet
+        emit TeleportToStarknet(msg.sender, recipient, amount, msg.value, messageHash);
+    }
+
+    /**
+     *  @inheritdoc ICygnusDAO
+     */
+    function teleportToEthereum(address recipient, uint128 amount) external payable override {
+        /// @custom:error CantTeleportZero
+        if (amount == 0) revert CantTeleportZero();
+
+        // The message payload
+        uint256[] memory payload = new uint256[](3);
+
+        // Recipient of CYG on Ethereum and amount, the sum of amounts on all chains always fits in 1 slot 
+        payload[0] = T_T;
+        payload[1] = uint256(uint160(recipient));
+        payload[2] = amount;
+
+        // Consume message from L2 first, will revert if no exact message exists
+        bytes32 messageHash = STARKNET_CORE.consumeMessageFromL2(cygTokenStarknet, payload);
+
+        // Mint to msg.sender
+        _mint(recipient, amount);
+
+        // Reset teleporter for recipient
+        STARKNET_CORE.sendMessageToL2{value: msg.value}(cygTokenStarknet, TELEPORT_TO_ETHEREUM, payload);
+
+        /// @custom:event TeleportFromStarknet
+        emit TeleportToEthereum(msg.sender, recipient, amount, messageHash);
     }
 }

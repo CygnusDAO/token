@@ -613,8 +613,6 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
     // Simple view functions to get quickly
 
-    /// TODO
-
     /**
      *  @inheritdoc IPillarsOfCreation
      */
@@ -915,11 +913,11 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
 
         // Update if we are at new epoch
         if (epochsPassed > 0) {
-            // Increase internal epoch first
-            _currentEpoch += 1;
+            /// Gas savings
+            uint256 newEpoch = _currentEpoch + 1;
 
             // Check that contract is not expired with new epoch
-            if (_currentEpoch < TOTAL_EPOCHS) {
+            if (newEpoch < TOTAL_EPOCHS) {
                 // Store last epoch update
                 lastEpochTime = currentTime;
 
@@ -927,10 +925,10 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
                 uint256 oldCygPerBlock = cygPerBlockRewards;
 
                 // Store new cygPerBlock
-                cygPerBlockRewards = calculateCygPerBlock(_currentEpoch, totalCygRewards);
+                cygPerBlockRewards = calculateCygPerBlock(newEpoch, totalCygRewards);
 
                 // Store this info once on each advance
-                EpochInfo storage epoch = getEpochInfo[_currentEpoch];
+                EpochInfo storage epoch = getEpochInfo[newEpoch];
 
                 // Store start time
                 epoch.start = currentTime;
@@ -939,7 +937,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
                 epoch.end = currentTime + BLOCKS_PER_EPOCH;
 
                 // Store current epoch number
-                epoch.epoch = _currentEpoch;
+                epoch.epoch = newEpoch;
 
                 // Store the `cygPerBlock` of this epoch
                 epoch.cygPerBlock = cygPerBlockRewards;
@@ -951,10 +949,13 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
                 epoch.totalClaimed = 0;
 
                 // Store the new cyg per block for the dao
-                cygPerBlockDAO = calculateCygPerBlock(_currentEpoch, totalCygDAO);
+                cygPerBlockDAO = calculateCygPerBlock(newEpoch, totalCygDAO);
+
+                // Update epoch
+                _currentEpoch = newEpoch;
 
                 /// @custom:event NewEpoch
-                emit NewEpoch(_currentEpoch - 1, _currentEpoch, oldCygPerBlock, cygPerBlockRewards);
+                emit NewEpoch(newEpoch - 1, newEpoch, oldCygPerBlock, cygPerBlockRewards);
             }
             // If we have passed 1 epoch and the current epoch is >= TOTAL EPOCHS then we self-destruct contract
             else _supernova();
@@ -1035,6 +1036,7 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     /**
      *  @notice Collects the CYG the msg.sender has accrued and sends to `to`
      *  @param borrowable The address of the borrowable where borrows are stored
+     *  @param collateral The address of the borrowable's collateral (0 for lenders)
      *  @param to The address to send msg.sender's rewards to
      */
     function _collect(address borrowable, address collateral, address to) private returns (uint256 cygAmount) {
@@ -1044,29 +1046,31 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
         // Get user from storage for this borrowable and collateral
         UserInfo storage user = getUserInfo[borrowable][collateral][msg.sender];
 
-        // Avoid stack too deep
-        {
-            // Calculate the user's accumulated reward based on their shares and the pool's accum reward
-            int256 accumulatedReward = int256((user.shares * shuttle.accRewardPerShare) / ACC_PRECISION);
+        // Calculate the user's accumulated reward based on their shares and the pool's accum reward
+        int256 accumulatedReward = int256((user.shares * shuttle.accRewardPerShare) / ACC_PRECISION);
 
-            // Owed cyg amount
-            cygAmount = uint256(accumulatedReward - user.rewardDebt);
+        // Pending CYG
+        int256 pending = accumulatedReward - user.rewardDebt;
 
-            // If no rewards then return and don't collect
-            if (cygAmount == 0) return 0;
+        /// @custom;error LessThanZero
+        if (pending < 0) revert PillarsOfCreation__CantConvertUint256();
 
-            // Update the user's reward debt
-            user.rewardDebt = accumulatedReward;
+        // Owed cyg amount
+        cygAmount = uint256(pending);
 
-            // Check for bonus rewards
-            if (address(shuttle.bonusRewarder) != address(0)) {
-                // Bonus rewarder is set, harvest
-                shuttle.bonusRewarder.onReward(borrowable, collateral, msg.sender, to, cygAmount, user.shares);
-            }
-        }
+        // Update the user's reward debt
+        user.rewardDebt = accumulatedReward;
 
         // Mint new CYG
-        IERC20(cygToken).mint(to, cygAmount);
+        if (cygAmount != 0) {
+            IERC20(cygToken).mint(to, cygAmount);
+        }
+
+        // Check for bonus rewards
+        if (address(shuttle.bonusRewarder) != address(0)) {
+            // Bonus rewarder is set, harvest
+            shuttle.bonusRewarder.onReward(borrowable, collateral, msg.sender, to, cygAmount, user.shares);
+        }
     }
 
     /**
@@ -1268,6 +1272,8 @@ contract PillarsOfCreation is IPillarsOfCreation, ReentrancyGuard {
     }
 
     /**
+     *  @notice This function serves no purpose, advance will self destruct it anyways.
+     *
      *  @inheritdoc IPillarsOfCreation
      *  @custom:security non-reentrant
      */

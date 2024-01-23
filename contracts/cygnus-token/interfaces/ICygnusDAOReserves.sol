@@ -30,19 +30,28 @@ interface ICygnusDAOReserves {
     error CygnusDAOReserves__WeightNotAllowed(uint256 weight);
 
     /// @dev Reverts when trying to claim cyg before lock period ends
+    /// @custom:error CantClaimCygYet
     error CygnusDAOReserves__CantClaimCygYet(uint256 time, uint256 claimAt);
 
     /// @dev Reverts when theres not enough cyg to claim
+    /// @custom:error NotEnoughCyg
     error CygnusDAOReserves__NotEnoughCyg(uint256 amount, uint256 balance);
 
     /// @dev Reverts if borrowable is not set
+    /// @custom:error CantRedeemAddressZero
     error CygnusDAOReserves__CantRedeemAddressZero();
 
     /// @dev Reverts if Safe is 0
+    /// @custom:error SafeCantBeZero
     error CygnusDAOReserves__SafeCantBeZero();
 
     /// @dev Reverts if X1 vault is 0
+    /// @custom:error X1VaultCantBeZero
     error CygnusDAOReserves__X1VaultCantBeZero();
+
+    /// @dev Reverts if sender is not Hangar18
+    /// @custom:error MsgSenderNotHangar
+    error CygnusDAOReserves__MsgSenderNotHangar();
 
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             2. CUSTOM EVENTS
@@ -151,14 +160,6 @@ interface ICygnusDAOReserves {
         uint256 _shuttleId
     ) external view returns (bool initialized, uint256 shuttleId, address borrowable, address collateral);
 
-    /// @dev Retrieves the actual shuttle ID (in case array differs)
-    /// @param id The shuttle ID
-    /// @return initialized Whether the shuttle is initialized or not.
-    /// @return shuttleId The unique identifier of the shuttle.
-    /// @return borrowable The address of the borrowable asset.
-    /// @return collateral The address of the collateral asset.
-    function getShuttle(uint256 id) external view returns (bool initialized, uint256 shuttleId, address borrowable, address collateral);
-
     /// @dev Name of the contract
     function name() external view returns (string memory);
 
@@ -233,7 +234,7 @@ interface ICygnusDAOReserves {
     /// @notice Adds a shuttle to the record
     /// @param shuttleId The ID for the shuttle we are adding
     /// @custom:security non-reentrant only-admin
-    function addShuttle(uint256 shuttleId) external;
+    function addShuttle(uint256 shuttleId, address borrowable, address collateral) external;
 
     /// @notice Sweeps any token sent to this contract except the CYG token
     /// @param token The address of the token being swept
@@ -260,3 +261,4 @@ interface ICygnusDAOReserves {
     /// @notice Sweep ETH
     function sweepNative() external;
 }
+

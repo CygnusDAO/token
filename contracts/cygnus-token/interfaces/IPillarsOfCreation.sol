@@ -108,6 +108,13 @@ interface IPillarsOfCreation {
      */
     error PillarsOfCreation__OnlyArtificer();
 
+    /**
+     *  @notice Used when converting from int to uint
+     *
+     *  @custom:error LessThanZero
+     */
+    error PillarsOfCreation__CantConvertUint256();
+
     /*  ═══════════════════════════════════════════════════════════════════════════════════════════════════════ 
             2. CUSTOM EVENTS
         ═══════════════════════════════════════════════════════════════════════════════════════════════════════  */
@@ -721,6 +728,11 @@ interface IPillarsOfCreation {
      */
     function supernova() external;
 
+    /**
+     *  @notice Manually try and advance the epoch
+     */
+    function advanceEpoch() external;
+
     /*  -------------------------------------------------------------------------------------------------------  *
      *                                           ARTIFICER FUNCTIONS 🛠️                                          *
      *  -------------------------------------------------------------------------------------------------------  */
@@ -817,3 +829,4 @@ interface IPillarsOfCreation {
      */
     function initializePillars() external;
 }
+
