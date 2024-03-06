@@ -1,4 +1,6 @@
-// contracts/TokenVesting.sol
+// This contract is taken from: https://github.com/AbdelStark/token-vesting-contracts which was 
+// released under the Apache-2.0 license. We are not the original authors.
+
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.17;
 
