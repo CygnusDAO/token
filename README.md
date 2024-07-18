@@ -1,3 +1,5 @@
+> :warning: CYG Rewards were paused on July 7th 2024 due to upgrade from v1 to v2 (see below). Will be resumed shortly starting with a new rewarder contract.
+
 # Versions
 
 - `1.0.0` - Was deployed on Polygon (PoS) and Arbitrum. Calculated epoch on the fly, causing the contract to be out of sync if no tx made it advance manually. (Oct 10 2023)
